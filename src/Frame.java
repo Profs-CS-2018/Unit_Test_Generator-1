@@ -1,8 +1,13 @@
 package com.java.gui2;
 
+/**
+ * Imported Libraries
+ * 
+ * 
+ * */
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -10,8 +15,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -23,32 +32,72 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.beans.*;
 
 
-
+/**
+ * Frame Class extends JFrame
+ * */
 public class Frame extends JFrame{
 
     
+	/**
+	 * Private Variable Declarations
+	 */
+	//Defined immutable variable for Logging
+	private static final long serialVersionUID = 1L;
+	
+	//Container for the Pane
 	private Container pane;
+	
+	//Tab Pane
 	private JTabbedPane tabbedPane;
-	private JTabbedPane TestFiles;
-    private JTabbedPane TestFixtures;
-    private JTabbedPane Makefiles;
+	
+	//File Choosers
     private JFileChooser fc;
     private JFileChooser fc1;
+    
+    //Text Areas
     private JTextField textFieldSave;
-    private JLabel fixedLabel;
+    private  JTextField addSaveTo;
     private JTextField textField;
+    private JTextArea  failure;
+    
+    //Check Boxes
+    private JCheckBox allFiles;
+   	private JCheckBox makeFile;
+   	private JCheckBox testFixture;
+   	private JCheckBox unitTest;
+   	
+   	//Labels
+    private JLabel fixedLabel;
+    private JLabel iconNameLabel;
+    private JLabel iconLabel;
+    
+    //Default List Model for content
     private DefaultListModel dm;
+    
+    //List that takes and stores path names
     private JList<?> listFiles;
     
+    //Progress bar
+    private JProgressBar progressBar;
+    
+    //File List for storing the files
+    private ArrayList<File> selectedFiles;
+    
+    //Path name variable for storing the Path name.
+    private String path;
+    
+	//Call upon the logging capabilities
+    private static final Logger LOGGER = Logger.getLogger( Frame.class.getName() );
    
 	/**
 	 * 
@@ -56,11 +105,16 @@ public class Frame extends JFrame{
 	 */
     public Frame(String title)
     {
+    	/**
+    	 * Name the Frame
+    	 */
     	super(title);
     	createFrame();
     	createContentPanel();
     	createMenuBar();
     	createButtonControls();
+    	
+    	java.net.URL url = ClassLoader.getSystemResource("src/asrc.gif");
     	/**
          * Changes the default theme of JFileChooser
          */
@@ -100,6 +154,12 @@ public class Frame extends JFrame{
     	
     	listFiles = new JList<DefaultListModel>();
     	
+    	progressBar = new JProgressBar();
+    	
+    	path = "";
+    	
+    	selectedFiles = new ArrayList<File>();
+    	
     fixedLabel = new JLabel("Output Save Destination");
     fixedLabel.setLabelFor(textFieldSave);
     	
@@ -107,21 +167,25 @@ public class Frame extends JFrame{
     	textField.setToolTipText("Modify selection paths.");
     	textField.setEditable(true);
     	
+    	failure = new JTextArea();
+    	
     	buildPanels();
     }
     	
     	public void buildPanels()
     	{   
-        	JCheckBox allFiles = new JCheckBox("All Files");
-        	JCheckBox makeFile	= new JCheckBox("Make File");
-        	JCheckBox testFixture	= new JCheckBox("Test Fixture");
-        	JCheckBox unitTest	= new JCheckBox("Unit Test");
+    		allFiles = new JCheckBox("All Files");
+        	makeFile	= new JCheckBox("Make File");
+        	testFixture	= new JCheckBox("Test Fixture");
+        	unitTest	= new JCheckBox("Unit Test");
+        	
         	
         	JButton browse = new JButton("Browse");
         	JButton preview	= new JButton("Preview");
         	
         	JButton addFile = new JButton("Add File");
         	JButton findFile = new JButton("Search");
+        JButton saveTo = new JButton("Save To");
         	
         	JButton submit = new JButton("Submit");
         	JButton cancel	= new JButton("Cancel");
@@ -141,13 +205,11 @@ public class Frame extends JFrame{
         	JPanel westContainer = new JPanel();
         	JPanel togglePanel = new JPanel();
         	JPanel fileInputPanel = new JPanel();
+        	JPanel imagePanel = new JPanel();
         	
+        	addSaveTo = new JTextField("Type Save To Location Here");  
         	JTextField addFileInput = new JTextField("Type Filename Here");
-        	JTextField addDirectoryInput = new JTextField("Type Directory Here");
-        	
-        	JScrollPane scrollPane = new JScrollPane();
-        	
-        	
+        	JTextField addDirectoryInput = new JTextField("Type Search Directory Here");       	
         	
         	//Border Layout Display Panels
         	filePanel.setLayout(new BorderLayout(7, 7));
@@ -186,22 +248,19 @@ public class Frame extends JFrame{
         //sideBtnPanel.add(browse);
         //sideBtnPanel.add(preview);
         
-        
-        
+       
+        fileInputPanel.add(addSaveTo);
+        fileInputPanel.add(saveTo);
         fileInputPanel.add(addFileInput);
         fileInputPanel.add(addFile);
         fileInputPanel.add(addDirectoryInput);
         fileInputPanel.add(findFile);
         fileInputPanel.add(browse);
-        fileInputPanel.add(preview);
-        
+        fileInputPanel.add(preview);      
         
         btmBtnPanel.add(submit);
         btmBtnPanel.add(cancel);
-        //northContainer.add(togglePanel);
-     
-        	
-        
+        //northContainer.add(togglePanel);   
         
         submitBtnPartition.add(btmBtnPanel);
         cancelBtnPartition.add(btmBtnPanel);
@@ -217,10 +276,15 @@ public class Frame extends JFrame{
         	pane.add(northContainer, BorderLayout.NORTH);
         	pane.add(westContainer, BorderLayout.WEST);
         	
-    	//Adding Listeners
+    	//Adding Button Listeners
     	browse.addActionListener(e -> browse());
     	preview.addActionListener(e -> preview());
     	cancel.addActionListener(e -> close());
+    	submit.addActionListener(e -> submit());
+    	saveTo.addActionListener(e -> saveTo());
+    	
+    	//Adding Check Box Listeners
+    	allFiles.addActionListener(e -> allFilesChecked());
     }
     
     public void createMenuBar()
@@ -275,7 +339,7 @@ public class Frame extends JFrame{
          /**
           *The following line of code can be used to open the file search in a particular directory
           * */
-         fc.setCurrentDirectory(new File("C:\\Users\\timmcclintock\\Documents\\workspace\\TestGT2"));
+         fc.setCurrentDirectory(new File(System.getProperty("user.name")));
          /**
           * The following code adds filter to the file extensions.
           */
@@ -298,7 +362,7 @@ public class Frame extends JFrame{
                  if (files.length > 1) {
                      for (int i = 0; i < files.length; i++) {
                          dm.addElement(files[i].getAbsolutePath()); //add path into the JPanel
-
+                         selectedFiles.add(files[i]);
                      }
                  } else {
                      dm.addElement(files[0].getAbsolutePath());
@@ -312,28 +376,69 @@ public class Frame extends JFrame{
 
     }
     
+    /** Returns an ImageIcon, or null if the path was invalid. */
+    protected ImageIcon createImageIcon(String path,
+                                               String description) {
+        java.net.URL imgURL = getClass().getResource(path);
+        System.out.println(getClass().getResource(path));
+        if (imgURL != null) {
+            return new ImageIcon(imgURL, description);
+        } else {
+            System.err.println("Couldn't find file: " + path);
+            return null;
+        }
+    }
+    
+    public void saveTo()
+    {
+    		path = addSaveTo.getText();
+    	    addSaveTo.setEnabled(false);
+    	    addSaveTo.setEditable(false);
+    }
+    public void saveToField()
+    {
+    		path = addSaveTo.getText();
+    	    addSaveTo.setEnabled(false);
+    }
+    
+    
+    
     public void submit()
     {
-    	 try { //begin the middle end attempt to parse and make files
-             throw new Exception();
-     }
-     catch (Exception e1) //catch any error which happens to have resulted in generation failure
-     {
-         JOptionPane.showMessageDialog(null, "ERROR: See Error Information Tab " +
-                 "for details");
-         //clicking OK redirects you to a tabbed pane labelled ERRORS
-         String errors = "Errors";
+   // 	path = "/Users/timmcclintock/Documents/workspace/TestGt2/src";
+        	try { //begin the middle end attempt to parse and make files
+                if (makeFile.isSelected() && selectedFiles != null) {
+                    OutputGenerator outputGen = new OutputGenerator(selectedFiles, path);
+       
+                    System.out.println("Generating makefile");
+                } else {
+                	JOptionPane.showMessageDialog(pane, "Nothing Selected to Generate.");
+                }
+            } catch (Exception e1) //catch any error which happens to have resulted in generation failure
+            {
+                JOptionPane.showMessageDialog(null, "ERROR: See Error Information Tab " +
+                        "for details: \nfile already exists.");
+                e1.printStackTrace();
+                //clicking OK redirects you to a tabbed pane labeled ERRORS
+                String errors = "Errors";
+                LOGGER.log( Level.FINE, "ERROR:  {0} file already exists.", errors);
+                //check if ERRORS tab exists. Create if it does not.
+                if (tabbedPane.indexOfTab(errors) == -1) {
+                    tabbedPane.add(errors, new JScrollPane(failure));
+                }
 
-         //check if ERRORS tab exists. Create if it does not.
-         if(tabbedPane.indexOfTab(errors) == -1) {
-        	 tabbedPane.addTab(errors, new JScrollPane(new JList<>()));
-         }
+                SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
-             //populate the list of errors. make the text red?
+                failure.setText("(" + sdf.format(new java.util.Date()) + ") Action failed.");
 
-             //set ERROR tab as currently selected tab
-         tabbedPane.getModel().setSelectedIndex(tabbedPane.indexOfTab(errors));
-    	
+
+                //populate the list of errors. make the text red?
+
+
+                failure.setEditable(false);
+                //set ERROR tab as currently selected tab
+                tabbedPane.getModel().setSelectedIndex(tabbedPane.indexOfTab(errors));
+                
     }
     }
     
@@ -358,8 +463,7 @@ public class Frame extends JFrame{
     	                     * the textArea on the Preview tab.
     	                     */
     	                    try {
-    	                        FileReader fr = new FileReader(listFiles.getSelectedValue().toString());
-    	                        BufferedReader br = new BufferedReader(fr);
+    	                        BufferedReader br = new BufferedReader(new FileReader(listFiles.getSelectedValue().toString()));
     	                        String sCurrentLine;
     	                        String  preview = "Preview";
     	                        /**
@@ -441,6 +545,53 @@ public class Frame extends JFrame{
     		dispose();
     }
     
+    public void allFilesChecked()
+    {
+            // Turn on all checkboxes if Select All is on
+            if (allFiles.isSelected()) {
+                makeFile.setSelected(true);
+                testFixture.setSelected(true);
+                unitTest.setSelected(true);
+            }
+
+            // If Select All is turned off, turn off all other checkboxes
+            else {
+                makeFile.setSelected(false);
+                testFixture.setSelected(false);
+                unitTest.setSelected(false);
+            }
+    }
+    
+    public void makeFilesChecked()
+    {
+                if (!makeFile.isSelected()) {
+                    allFiles.setSelected(false);
+                }
+                else
+                {
+                	
+                }
+    }
+
+    
+    public void testFixtureFilesChecked()
+    {
+                if (!testFixture.isSelected()) {
+                    allFiles.setSelected(false);
+                }
+                else
+                {
+                	
+                }
+    }
+
+    public void unitTestFilesChecked()
+    {
+                if (!unitTest.isSelected()) {
+                    allFiles.setSelected(false);
+                }
+      }
+    
     public void listFiles()
     {
     	 /**
@@ -472,6 +623,12 @@ public class Frame extends JFrame{
             JOptionPane.showMessageDialog(null, e1.getMessage());
         }
     }
+
+	public static Logger getLogger ()
+	{
+
+		return LOGGER;
+	}
    
 
 }
