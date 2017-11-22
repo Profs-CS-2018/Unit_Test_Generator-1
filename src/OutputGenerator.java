@@ -7,6 +7,7 @@ public class OutputGenerator {
     private ArrayList<File> files;
     private ArrayList<File> filesCPP;
     private ArrayList<File> filesH;
+    //private ArrayList<File> testFixtures;
     private Parser parser;
     private static final Logger LOGGER = Logger.getLogger(OutputGenerator.class.getName());
 
@@ -43,7 +44,7 @@ public class OutputGenerator {
             for (File input : filesCPP) {
                 String oFile = input.getName().split("\\.")[0] + ".o";
                 writer.write("\n\n" + oFile + " : ");
-                ArrayList<String> dependencies = parser.parseMake(input);
+                ArrayList<String> dependencies = parser.searchForIncludes(input);
 
                 for (String dependency : dependencies) {
                     writer.write(dependency);
@@ -52,60 +53,79 @@ public class OutputGenerator {
             }
             writer.write("\n\nclean :");
             writer.write("\n\t-rm *.o $(OBJS) executable");
-            writer.close();
 
+            writer.flush();
+            writer.close();
         } catch (Exception e) {
-            System.out.println("Error!");
+            System.out.println("Error generating makefile.");
         }
     }
 
-    public void writeTestFixture() {
-        Parser parser = new Parser();
-        ArrayList<String> objectList = new ArrayList<>();
-        //file = new File(getDirectoryName());
+    public void writeTestFixtures() {
+        for (File input : filesCPP) {
+            ArrayList<String> dependencies = parser.searchForIncludes(input);
+            String className = input.getName().split("\\.")[0];
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("testFixture"))) {
+            File file = new File(className + "Fixture.h");
 
-            for (File input : filesCPP) {
-                writer.write("\n");
-                String className = input.getName().split("\\.")[0];
-                //System.out.println(className);
-                String testName = input.getName().split("\\.")[0] + "Test()";
-                String obj = " object";
-                writer.write("struct " + className + "Test:testing::Test");
-                writer.write("{");
-                writer.write("\n\t" + className + "*" + obj + ";");
-                writer.write("\n\t" + testName);
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                writer.write("#include \"TestHarness.h\"\n");
+
+                for (String header : dependencies) {
+                    System.out.println(header);
+                    writer.write("#include " + '"' + header + '"' + "\n");
+                }
+
+                String testName = input.getName().split("\\.")[0] + "Fixture()";
+                //String obj = " object";
+                writer.write("\nstruct " + className + "Fixture:testing::Test");
+                writer.write("\n{");
+                writer.write("\n\t" + className + " *comp;");
+                writer.write("\n\n\t" + testName);
                 writer.write("\n\t{");
-                writer.write("\n\t\t" + obj + " = new " + className + "();");
+                writer.write("\n\t\tcomp = new " + className + "();");
                 writer.write("\n\t}");
-                writer.write("\n\t" + testName);
+                writer.write("\n\n\t~" + testName);
                 writer.write("\n\t{");
-                writer.write("\n\t\tdelete" + obj + ";");
+                writer.write("\n\t\tdelete comp;");
                 writer.write("\n\t}");
-                writer.write("\n};");
+                writer.write("\n}");
 
-                /**
-                 writer.write("\n{");
+                writer.flush();
+                writer.close();
 
-                 //ArrayList<String> classNames = parser.parseForTestFixture(input);
-
-                 writer.write("\n\t");
-                 writer.write(input.getName() + "* " + obj);
-                 writer.write("\n" + testName);
-                 writer.write("\n" + obj + " = new " + testName);
-                 writer.write("\n\t}");
-                 writer.write("~" + testName);
-                 writer.write("\n\tdelete" + obj);
-                 writer.write("\n\t}");
-                 writer.write("\n}");
-                 */
+                //testFixtures.add(file);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Error generating test fixture for " + className);
             }
+        }
+    }
 
-            writer.close();
+    public void writeUnitTests() {
+        for (File input : filesCPP) {
+            String className = input.getName().split("\\.")[0];
+            String fixtureName = className + "Fixture";
 
-        } catch (Exception e) {
-            System.out.println("Error!");
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(className + "Test.cpp"))) {
+                ArrayList<String> methodList = parser.searchForMethods(input);
+
+                writer.write("#include \"TestHarness.h\"");
+                writer.write("\n#include \"" + fixtureName + ".h\"");
+
+                for (String method : methodList) {
+                    writer.write("\n\nTEST( " + className + "Tests, " + method + "_Test )");
+                    writer.write("\n{");
+                    writer.write("\n\n\t" + fixtureName + " f;");
+                    writer.write("\n\t//Test Logic goes here");
+                    writer.write("\n\n}");
+                }
+
+                writer.flush();
+                writer.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

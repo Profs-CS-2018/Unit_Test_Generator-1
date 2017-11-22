@@ -338,7 +338,7 @@ public class Frame extends JFrame {
         int returnVal = fc.showOpenDialog(pane);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File[] files = fc.getSelectedFiles(); // the selected files from browse
-            if (files.length > 1) {
+            if (files.length >= 1) {
                 for (int i = 0; i < files.length; i++) {
                     dm.addElement(files[i].getAbsolutePath()); //add path into the JPanel
                     selectedFiles.add(files[i]);
@@ -386,13 +386,20 @@ public class Frame extends JFrame {
             if (makeFileBox.isSelected() && selectedFiles != null) {
                 outputGen.writeMakeFile();
                 System.out.println("Generating makefile...");
-            } else {
-                JOptionPane.showMessageDialog(pane, "Nothing Selected to Generate.");
             }
 
             if (testFixtureBox.isSelected() && selectedFiles != null) {
-                outputGen.writeTestFixture();
-                System.out.println("Generating testfixture...");
+                outputGen.writeTestFixtures();
+                System.out.println("Generating testfixture(s)...");
+            }
+
+            if (unitTestBox.isSelected() && selectedFiles != null) {
+                outputGen.writeUnitTests();
+                System.out.println("Generating Unit Test file(s)...");
+            }
+
+            if (!makeFileBox.isSelected() && !testFixtureBox.isSelected() && !unitTestBox.isSelected()) {
+                JOptionPane.showMessageDialog(pane, "No output options selected.");
             }
         } catch (Exception e1) //catch any error which happens to have resulted in generation failure
         {

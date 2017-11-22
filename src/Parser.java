@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 public class Parser implements ParserI {
 
-    private ArrayList<String> lineList;
+    //private ArrayList<String> lineList;
     private BufferedReader bufferedReader;
     private FileReader fileReader;
     private ArrayList<File> filesCPP;
@@ -20,9 +20,9 @@ public class Parser implements ParserI {
 
     }
 
-    public ArrayList parseMake(File inputFile) {
+    public ArrayList searchForIncludes(File inputFile) {
         ArrayList<String> dependencyList = new ArrayList<>();
-        lineList = new ArrayList<>();
+        ArrayList lineList = new ArrayList<>();
         String line;
         int num = 0;
 
@@ -35,10 +35,10 @@ public class Parser implements ParserI {
         try {
             while ((line = bufferedReader.readLine()) != null) {
                 if (line.contains("#include") && !line.contains("<")) {
-                    line = line.replace("#include", "");
+                    line = line.replace("#include ", "");
                     line = line.replaceAll("\"", "");
                     lineList.add("Line: " + (num + 1) + ".) " + line);
-                    //System.out.println("File Dependency: " + line);
+                    System.out.println("File Dependency: " + line);
                     dependencyList.add(line);
                 }
                 num++;
@@ -47,6 +47,38 @@ public class Parser implements ParserI {
             e.printStackTrace();
         }
         return dependencyList;
+    }
+
+    public ArrayList searchForMethods(File input) {
+        ArrayList<String> methodList = new ArrayList<>();
+        ArrayList lineList = new ArrayList<>();
+        String line;
+        String[] methodTypes = new String[] {"void", "int", "string", "bool", "long"};
+        String className = input.getName().split("\\.")[0];
+        int num = 0;
+
+        try {
+            bufferedReader = new BufferedReader(new FileReader(input));
+        } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
+        }
+
+        try {
+            while ((line = bufferedReader.readLine()) != null) {
+                if (line.contains(className) && line.contains("::")) {
+                    if (!line.split("::")[1].contains(className)) {
+                        line = line.split("::")[1];
+                        line = line.split("\\(")[0];
+                        System.out.println(line);
+                        methodList.add(line);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return methodList;
     }
 
     @Override
