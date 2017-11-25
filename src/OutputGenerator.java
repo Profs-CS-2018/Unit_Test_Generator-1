@@ -2,31 +2,29 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-public class OutputGenerator {
+public class OutputGenerator implements OutputGeneratorI {
 
     private ArrayList<File> files;
-    private ArrayList<File> filesCPP;
-    private ArrayList<File> filesH;
     //private ArrayList<File> testFixtures;
-    private Parser parser;
+    private ParseCPP parserCPP;
+    private ParseInclude parserInclude;
     private static final Logger LOGGER = Logger.getLogger(OutputGenerator.class.getName());
 
     public OutputGenerator(ArrayList<File> files) {
         this.files = files;
-        parser = new Parser();
-        filesCPP = new ArrayList<>();
-        filesH = new ArrayList<>();
-        initializeFileLists();
+        parserInclude = new ParseInclude(files.get(0).getAbsolutePath(), files);
+        parserCPP = new ParseCPP(files.get(0).getAbsolutePath(), files);
     }
 
     public void writeMakeFile() {
         ArrayList<String> objectList = new ArrayList<>();
+
         //file = new File(getDirectoryName());
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("makefile"))) {
             writer.write("all: executable");
             writer.write("\n\nOBJS =");
 
-            for (File object : filesCPP) {
+            for (File object : files) {
                 String oFile = object.getName().split("\\.")[0] + ".o";
                 //String fileNm = object.getName();
                 //System.out.println("Hea:" + fileNm);
@@ -41,10 +39,10 @@ public class OutputGenerator {
             writer.write("\n\nexecutable : $(OBJS)");
             writer.write("\n\t$(CC) $(LFLAGS) $(OBJS) -o executable");
 
-            for (File input : filesCPP) {
+            for (File input : files) {
                 String oFile = input.getName().split("\\.")[0] + ".o";
                 writer.write("\n\n" + oFile + " : ");
-                ArrayList<String> dependencies = parser.searchForIncludes(input);
+                ArrayList<String> dependencies = parserInclude.parse(input);
 
                 for (String dependency : dependencies) {
                     writer.write(dependency);
@@ -62,8 +60,8 @@ public class OutputGenerator {
     }
 
     public void writeTestFixtures() {
-        for (File input : filesCPP) {
-            ArrayList<String> dependencies = parser.searchForIncludes(input);
+        for (File input : files) {
+            ArrayList<String> dependencies = parserInclude.parse(input);
             String className = input.getName().split("\\.")[0];
 
             File file = new File(className + "Fixture.h");
@@ -103,12 +101,12 @@ public class OutputGenerator {
     }
 
     public void writeUnitTests() {
-        for (File input : filesCPP) {
+        for (File input : files) {
             String className = input.getName().split("\\.")[0];
             String fixtureName = className + "Fixture";
 
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(className + "Test.cpp"))) {
-                ArrayList<String> methodList = parser.searchForMethods(input);
+                ArrayList<String> methodList = parserCPP.parse(input);
 
                 writer.write("#include \"TestHarness.h\"");
                 writer.write("\n#include \"" + fixtureName + ".h\"");
@@ -136,17 +134,7 @@ public class OutputGenerator {
         return directoryName;
     }
 
-    public void initializeFileLists() {
-        for (File file : files) {
-            String fileName = file.getName();
-            String fileExtension = getFileExtension(fileName);
-            if (fileExtension.equals("cpp")) {
-                filesCPP.add(file);
-            } else if (fileExtension.equals("h")) {
-                filesH.add(file);
-            }
-        }
-    }
+
 
     private String getFileExtension(String fileName) {
         String extension = "NoExtension";
