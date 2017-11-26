@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-public class Parser implements ParserI {
+public class Parser {
 
     //private ArrayList<String> lineList;
     private BufferedReader bufferedReader;
@@ -38,7 +38,6 @@ public class Parser implements ParserI {
                     line = line.replace("#include ", "");
                     line = line.replaceAll("\"", "");
                     lineList.add("Line: " + (num + 1) + ".) " + line);
-                    System.out.println("File Dependency: " + line);
                     dependencyList.add(line);
                 }
                 num++;
@@ -69,7 +68,8 @@ public class Parser implements ParserI {
                     if (!line.split("::")[1].contains(className)) {
                         line = line.split("::")[1];
                         line = line.split("\\(")[0];
-                        System.out.println(line);
+                        lineList.add("Line: " + (num + 1) + ".) " + line);
+                        //System.out.println("Method for " + className + ": " + line);
                         methodList.add(line);
                     }
                 }
@@ -81,14 +81,12 @@ public class Parser implements ParserI {
         return methodList;
     }
 
-    @Override
     public void parseCPP() {
 
         // TODO Auto-generated method stub
 
     }
 
-    @Override
     public void parseH() {
 
         // TODO Auto-generated method stub

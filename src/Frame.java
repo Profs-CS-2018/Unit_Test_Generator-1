@@ -11,25 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 
@@ -49,6 +31,7 @@ public class Frame extends JFrame {
 
     //Tab Pane
     private JTabbedPane tabbedPane;
+    private JPanel outputPanel;
 
     //File Choosers
     private JFileChooser fc;
@@ -75,7 +58,8 @@ public class Frame extends JFrame {
     private DefaultListModel dm;
 
     //List that takes and stores path names
-    private JList<?> listFiles;
+    private JList<?> inputFiles;
+    private JList<File> generatedFiles;
 
     //Progress bar
     private JProgressBar progressBar;
@@ -135,7 +119,7 @@ public class Frame extends JFrame {
 
         dm = new DefaultListModel();
 
-        listFiles = new JList<DefaultListModel>();
+        inputFiles = new JList<DefaultListModel>();
 
         progressBar = new JProgressBar();
 
@@ -157,25 +141,31 @@ public class Frame extends JFrame {
 
     private void buildApplication() {
         allFilesBox = new JCheckBox("All Files");
+        allFilesBox.setSelected(true);
         makeFileBox = new JCheckBox("Make File");
+        makeFileBox.setSelected(true);
         testFixtureBox = new JCheckBox("Test Fixture");
+        testFixtureBox.setSelected(true);
         unitTestBox = new JCheckBox("Unit Test");
+        unitTestBox.setSelected(true);
 
         JButton browse = new JButton("Browse");
         JButton preview = new JButton("Preview");
+        JButton remove = new JButton("Remove");
 
         JButton addFile = new JButton("Add File");
         JButton findFile = new JButton("Search");
         JButton saveTo = new JButton("Save To");
 
         JButton submit = new JButton("Submit");
-        JButton cancel = new JButton("Cancel");
+        JButton cancel = new JButton("Close");
 
         tabbedPane = new JTabbedPane();
 
         JPanel filePanel = new JPanel();
         JPanel previewPanel = new JPanel();
         JPanel errorPanel = new JPanel();
+        outputPanel = new JPanel();
         JPanel sideBtnPanel = new JPanel();
         JPanel btmBtnPanel = new JPanel();
         JPanel northContainer = new JPanel();
@@ -196,6 +186,7 @@ public class Frame extends JFrame {
         filePanel.setLayout(new BorderLayout(7, 7));
         previewPanel.setLayout(new BorderLayout(7, 7));
         errorPanel.setLayout(new BorderLayout(7, 7));
+        outputPanel.setLayout(new BorderLayout(7, 7));
 
         //Grid Layout Button Panels
         sideBtnPanel.setLayout(new GridLayout(0, 2));
@@ -212,7 +203,7 @@ public class Frame extends JFrame {
         southContainer.setLayout(new FlowLayout());
         westContainer.setLayout(new FlowLayout());
 
-        togglePanel.setName("Output Parameter Selection");
+        togglePanel.setName("Select the type(s) of files to generate:");
         togglePanel.setVisible(true);
         togglePanel.add(allFilesBox);
         togglePanel.add(makeFileBox);
@@ -220,22 +211,25 @@ public class Frame extends JFrame {
         togglePanel.add(unitTestBox);
 
         //layer1.add(textField);
-        filePanel.add(listFiles);
+        filePanel.add(inputFiles);
         //scrollPane.add(filePanel);
         tabbedPane.addTab("Input Files", new JScrollPane(filePanel));
         tabbedPane.addTab("Preview", previewPanel);
         tabbedPane.addTab("Errors", errorPanel);
+        tabbedPane.addTab("Generated Files", new JScrollPane(outputPanel));
         //sideBtnPanel.add(browse);
         //sideBtnPanel.add(preview);
 
-        fileInputPanel.add(addSaveTo);
-        fileInputPanel.add(saveTo);
+        //fileInputPanel.add(remove);
+        //fileInputPanel.add(addSaveTo);
+        //fileInputPanel.add(saveTo);
         fileInputPanel.add(addFileInput);
         fileInputPanel.add(addFile);
         fileInputPanel.add(addDirectoryInput);
         fileInputPanel.add(findFile);
         fileInputPanel.add(browse);
         fileInputPanel.add(preview);
+        fileInputPanel.add(remove);
 
         btmBtnPanel.add(submit);
         btmBtnPanel.add(cancel);
@@ -261,6 +255,7 @@ public class Frame extends JFrame {
         cancel.addActionListener(e -> close());
         submit.addActionListener(e -> submit());
         saveTo.addActionListener(e -> saveTo());
+        remove.addActionListener(e -> remove());
 
         //Adding Check Box Listeners
         allFilesBox.addActionListener(e -> allFilesChecked());
@@ -345,10 +340,10 @@ public class Frame extends JFrame {
                 }
             } else {
                 dm.addElement(files[0].getAbsolutePath());
-                listFiles.setModel(dm);
+                inputFiles.setModel(dm);
             }
             //dm.addElement(fileNames);
-            listFiles.setModel(dm);
+            inputFiles.setModel(dm);
         } else {
             JOptionPane.showMessageDialog(pane, "Oops! Operation was cancelled.");
         }
@@ -383,26 +378,37 @@ public class Frame extends JFrame {
         OutputGenerator outputGen = new OutputGenerator(selectedFiles);
 
         try {
-            if (makeFileBox.isSelected() && selectedFiles != null) {
-                outputGen.writeMakeFile();
-                System.out.println("Generating makefile...");
-            }
+            if (selectedFiles.size() > 0) {
+                if (makeFileBox.isSelected()) {
+                    outputGen.writeMakeFile();
+                    System.out.println("Generating makefile...");
+                }
 
-            if (testFixtureBox.isSelected() && selectedFiles != null) {
-                outputGen.writeTestFixtures();
-                System.out.println("Generating testfixture(s)...");
-            }
+                if (testFixtureBox.isSelected()) {
+                    outputGen.writeTestFixtures();
+                    System.out.println("Generating testfixture(s)...");
+                }
 
-            if (unitTestBox.isSelected() && selectedFiles != null) {
-                outputGen.writeUnitTests();
-                System.out.println("Generating Unit Test file(s)...");
+                if (unitTestBox.isSelected()) {
+                    outputGen.writeUnitTests();
+                    System.out.println("Generating Unit Test file(s)...");
+                }
+
+                ArrayList<File> outputFiles = outputGen.getOutputFiles();
+                generatedFiles = new JList<>(outputFiles.toArray(new File[0]));
+                outputPanel.add(generatedFiles);
+
+                setDefaultCloseOperation(EXIT_ON_CLOSE);
+                pack();
+                setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(pane, "No C++ classes were selected.");
             }
 
             if (!makeFileBox.isSelected() && !testFixtureBox.isSelected() && !unitTestBox.isSelected()) {
                 JOptionPane.showMessageDialog(pane, "No output options selected.");
             }
-        } catch (Exception e1) //catch any error which happens to have resulted in generation failure
-        {
+        } catch (Exception e1) {        //catch any error which happens to have resulted in generation failure
             JOptionPane.showMessageDialog(null, "ERROR: See Error Information Tab " +
                     "for details: \nfile already exists.");
             e1.printStackTrace();
@@ -438,14 +444,14 @@ public class Frame extends JFrame {
          * have the preview of the output file in it.
          */
 
-        Object returnVal = listFiles.getSelectedValue();
-        if (returnVal != null) {
+        Object selectedFile = generatedFiles.getSelectedValue();
+        if (selectedFile != null) {
             /**
              * Selected file has its preview generated and a copy placed into
              * the textArea on the Preview tab.
              */
             try {
-                BufferedReader br = new BufferedReader(new FileReader(listFiles.getSelectedValue().toString()));
+                BufferedReader br = new BufferedReader(new FileReader(generatedFiles.getSelectedValue().toString()));
                 String sCurrentLine;
                 String preview = "Preview";
                 /**
@@ -467,13 +473,10 @@ public class Frame extends JFrame {
                     textArea.setEditable(false);
                     fileContent.add(textArea);
 
-                    tabbedPane.setComponentAt(1,
-                            new JScrollPane(fileContent));
+                    tabbedPane.setComponentAt(1, new JScrollPane(fileContent));
                     tabbedPane.getModel().setSelectedIndex(tabbedPane.indexOfTab(preview));
-                } else {
-
                 }
-                JOptionPane.showMessageDialog(pane, "See Preview Tab.");
+                //JOptionPane.showMessageDialog(pane, "See Preview Tab.");
             } catch (Exception e1) {
                 JOptionPane.showMessageDialog(null, e1.getMessage());
             }
@@ -552,10 +555,10 @@ public class Frame extends JFrame {
         /**
          * JOptionPane implemented below is just for testing purposes.
          */
-        JOptionPane.showMessageDialog(this.pane, listFiles.getSelectedValue());
-        System.out.println(listFiles.getSelectedValue().toString());
+        JOptionPane.showMessageDialog(this.pane, inputFiles.getSelectedValue());
+        System.out.println(inputFiles.getSelectedValue().toString());
         try {
-            FileReader fr = new FileReader(listFiles.getSelectedValue().toString());
+            FileReader fr = new FileReader(inputFiles.getSelectedValue().toString());
             BufferedReader br = new BufferedReader(fr);
             String sCurrentLine;
             /**
@@ -574,6 +577,23 @@ public class Frame extends JFrame {
 
         } catch (Exception e1) {
             JOptionPane.showMessageDialog(null, e1.getMessage());
+        }
+    }
+
+    private void remove() {
+        try {
+            DefaultListModel model = (DefaultListModel) inputFiles.getModel();
+            int selectedIndex = inputFiles.getSelectedIndex();
+
+            if (selectedIndex != -1) {
+                model.remove(selectedIndex);
+                selectedFiles.remove(selectedIndex);
+            }
+
+            tabbedPane.validate();
+            tabbedPane.repaint();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(pane, "No file selected to remove.");
         }
     }
 

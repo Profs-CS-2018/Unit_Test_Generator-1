@@ -1,4 +1,5 @@
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -7,6 +8,7 @@ public class OutputGenerator {
     private ArrayList<File> files;
     private ArrayList<File> filesCPP;
     private ArrayList<File> filesH;
+    private ArrayList<File> outputFiles;
     //private ArrayList<File> testFixtures;
     private Parser parser;
     private static final Logger LOGGER = Logger.getLogger(OutputGenerator.class.getName());
@@ -16,13 +18,15 @@ public class OutputGenerator {
         parser = new Parser();
         filesCPP = new ArrayList<>();
         filesH = new ArrayList<>();
+        outputFiles = new ArrayList<>();
         initializeFileLists();
     }
 
     public void writeMakeFile() {
         ArrayList<String> objectList = new ArrayList<>();
+        File makeFile = new File("makefile");
         //file = new File(getDirectoryName());
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("makefile"))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(makeFile))) {
             writer.write("all: executable");
             writer.write("\n\nOBJS =");
 
@@ -56,6 +60,8 @@ public class OutputGenerator {
 
             writer.flush();
             writer.close();
+
+            outputFiles.add(makeFile);
         } catch (Exception e) {
             System.out.println("Error generating makefile.");
         }
@@ -66,9 +72,9 @@ public class OutputGenerator {
             ArrayList<String> dependencies = parser.searchForIncludes(input);
             String className = input.getName().split("\\.")[0];
 
-            File file = new File(className + "Fixture.h");
+            File testFixture = new File(className + "Fixture.h");
 
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(testFixture))) {
                 writer.write("#include \"TestHarness.h\"\n");
 
                 for (String header : dependencies) {
@@ -94,6 +100,7 @@ public class OutputGenerator {
                 writer.flush();
                 writer.close();
 
+                outputFiles.add(testFixture);
                 //testFixtures.add(file);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -107,7 +114,9 @@ public class OutputGenerator {
             String className = input.getName().split("\\.")[0];
             String fixtureName = className + "Fixture";
 
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(className + "Test.cpp"))) {
+            File unitTestFile = new File(className + "Test.cpp");
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(unitTestFile))) {
                 ArrayList<String> methodList = parser.searchForMethods(input);
 
                 writer.write("#include \"TestHarness.h\"");
@@ -123,7 +132,10 @@ public class OutputGenerator {
 
                 writer.flush();
                 writer.close();
+
+                outputFiles.add(unitTestFile);
             } catch (Exception e) {
+                System.out.println("error");
                 e.printStackTrace();
             }
         }
@@ -155,5 +167,14 @@ public class OutputGenerator {
             extension = fileName.substring(i + 1);
         }
         return extension;
+    }
+
+    public ArrayList getOutputFiles() {
+        System.out.println();
+        for (File file : outputFiles) {
+            System.out.println("File generated: " + file.getName());
+        }
+
+        return outputFiles;
     }
 }
