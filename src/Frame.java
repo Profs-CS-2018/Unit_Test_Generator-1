@@ -535,14 +535,14 @@ public class Frame extends JFrame {
          * have the preview of the output file in it.
          */
 
-        Object returnVal = listFiles.getSelectedValue();
-        if (returnVal != null) {
+        Object selectedFile = generatedFiles.getSelectedValue();
+        if (selectedFile != null) {
             /**
              * Selected file has its preview generated and a copy placed into
              * the textArea on the Preview tab.
              */
             try {
-                BufferedReader br = new BufferedReader(new FileReader(listFiles.getSelectedValue().toString()));
+                BufferedReader br = new BufferedReader(new FileReader(generatedFiles.getSelectedValue().toString()));
                 String sCurrentLine;
                 String preview = "Preview";
                 /**
@@ -564,13 +564,10 @@ public class Frame extends JFrame {
                     textArea.setEditable(false);
                     fileContent.add(textArea);
 
-                    tabbedPane.setComponentAt(1,
-                            new JScrollPane(fileContent));
+                    tabbedPane.setComponentAt(1, new JScrollPane(fileContent));
                     tabbedPane.getModel().setSelectedIndex(tabbedPane.indexOfTab(preview));
-                } else {
-
                 }
-                JOptionPane.showMessageDialog(pane, "See Preview Tab.");
+                //JOptionPane.showMessageDialog(pane, "See Preview Tab.");
             } catch (Exception e1) {
                 JOptionPane.showMessageDialog(null, e1.getMessage());
             }
