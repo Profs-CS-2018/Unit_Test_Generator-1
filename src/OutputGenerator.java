@@ -5,6 +5,8 @@ import java.util.logging.Logger;
 public class OutputGenerator {
 
     private ArrayList<File> outputFiles;
+    private ArrayList<File> filesCPP;
+    private ArrayList<File> filesH;
     private ArrayList<File> files;
     //private ArrayList<File> testFixtures;
     private ParseCPP parserCPP;
@@ -13,9 +15,12 @@ public class OutputGenerator {
 
     public OutputGenerator(ArrayList<File> files) {
         this.files = files;
+        filesCPP = new ArrayList<>();
+        filesH = new ArrayList<>();
         parserInclude = new ParseInclude(files.get(0).getAbsolutePath(), files);
         parserCPP = new ParseCPP(files.get(0).getAbsolutePath(), files);
         outputFiles = new ArrayList<>();
+        initializeFileLists();
     }
 
     public void writeMakeFile() {
@@ -26,7 +31,7 @@ public class OutputGenerator {
             writer.write("all: executable");
             writer.write("\n\nOBJS =");
 
-            for (File object : files) {
+            for (File object : filesCPP) {
                 String oFile = object.getName().split("\\.")[0] + ".o";
                 //String fileNm = object.getName();
                 //System.out.println("Hea:" + fileNm);
@@ -41,7 +46,7 @@ public class OutputGenerator {
             writer.write("\n\nexecutable : $(OBJS)");
             writer.write("\n\t$(CC) $(LFLAGS) $(OBJS) -o executable");
 
-            for (File input : files) {
+            for (File input : filesCPP) {
                 String oFile = input.getName().split("\\.")[0] + ".o";
                 writer.write("\n\n" + oFile + " : ");
                 ArrayList<String> dependencies = parserInclude.parse(input);
@@ -64,7 +69,7 @@ public class OutputGenerator {
     }
 
     public void writeTestFixtures() {
-        for (File input : files) {
+        for (File input : filesCPP) {
             ArrayList<String> dependencies = parserInclude.parse(input);
             String className = input.getName().split("\\.")[0];
 
@@ -106,7 +111,7 @@ public class OutputGenerator {
     }
 
     public void writeUnitTests() {
-        for (File input : files) {
+        for (File input : filesCPP) {
             String className = input.getName().split("\\.")[0];
             String fixtureName = className + "Fixture";
 
@@ -151,6 +156,20 @@ public class OutputGenerator {
 
         return outputFiles;
     }
+
+    public void initializeFileLists() {
+        for (File file : files) {
+            String fileName = file.getName();
+            String fileExtension = getFileExtension(fileName);
+            if (fileExtension.equals("cpp")) {
+                filesCPP.add(file);
+            } else if (fileExtension.equals("h")) {
+                filesH.add(file);
+            }
+        }
+    }
+
+
 
     private String getFileExtension(String fileName) {
         String extension = "NoExtension";
