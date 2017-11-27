@@ -397,8 +397,9 @@ public class Frame extends JFrame {
 
     private void addFiles() {
         String fileNm = addFileInput.getText();
+        File file = new File(fileNm);
         String dirNm = addFileInput.getText();
-        String directoryName = dirNm;
+        String directoryName = dirNm;//replace("\\", "\\\\")
         File directory = new File(directoryName);
 
         /**
@@ -414,25 +415,25 @@ public class Frame extends JFrame {
          *
          */
         else {
-            String absolutePath = dirNm + "\\" + fileNm;
+            String absolutePath = dirNm; // + "\\" + fileNm;
             /**
              * Case 1: user does not enter file name
              *
              */
             if (fileNm.isEmpty()) {
-                fc.setCurrentDirectory(new File(directoryName));
+                //fc.setCurrentDirectory(new File(directoryName));
                 System.out.println(directoryName);
                 int returnVal = fc.showOpenDialog(pane);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     if (dm.isEmpty()) {
-                        dm.addElement(fc.getSelectedFile().getAbsolutePath());
+                        dm.addElement(file.getAbsolutePath());
                     } else {
                         System.out.println(dm.contains(fc.getSelectedFile().getAbsolutePath()));
                         if (dm.contains(fc.getSelectedFile().getAbsolutePath())) {
                             JOptionPane.showMessageDialog(null, "Duplicate exists");
-                            listFiles.setSelectedIndex(dm.indexOf(fc.getSelectedFile().getAbsolutePath()));
+                            listFiles.setSelectedIndex(dm.indexOf(file.getAbsolutePath()));
                         } else {
-                            dm.addElement(fc.getSelectedFile().getAbsolutePath());
+                            dm.addElement(file.getAbsolutePath());
                         }
                     }
 
@@ -442,7 +443,8 @@ public class Frame extends JFrame {
              * Case 2: user enters file name
              */
             else {
-                fc.setSelectedFile(new File(absolutePath));
+                dm.addElement(file.getAbsolutePath());
+               // fc.setSelectedFile(new File(absolutePath));
                 int returnVal1 = fc.showOpenDialog(pane);
                 if (returnVal1 == JFileChooser.APPROVE_OPTION) {
                     if (dm.isEmpty()) {

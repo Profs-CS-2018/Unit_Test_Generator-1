@@ -29,7 +29,7 @@ public class ParseCPP extends Parser{
                         line = line.split("::")[1];
                         line = line.split("\\(")[0];
                         System.out.println(line);
-                        methodList.add("Line: " + (num + 1) + ".) " + line);
+                        methodList.add(line);
                     }
                 }
             }
