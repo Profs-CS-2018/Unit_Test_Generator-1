@@ -105,7 +105,6 @@ public class Frame extends JFrame {
         createFrame();
         createContent();
         createMenuBar();
-        createButtonControls();
 
         //	java.net.URL url = ClassLoader.getSystemResource("src/asrc.gif");
         /**
@@ -355,7 +354,8 @@ public class Frame extends JFrame {
         fc.setFileFilter(new FileNameExtensionFilter("Java(.java)", "java"));
         fc.setFileFilter(new FileNameExtensionFilter("C++(.cpp)", "cpp"));
         fc.setFileFilter(new FileNameExtensionFilter("C++(.cpp, .h)", "cpp", "h"));
-        fc.setFileFilter(new FileNameExtensionFilter("C++(.cpp, .h) and Text Files(.txt)", "cpp", "txt", "h"));
+        fc.setFileFilter(new FileNameExtensionFilter("C++(.cpp, .h) and Text Files(.txt)",
+                "cpp", "txt", "h"));
 
         /**
          * The following code checks if the action of clicking the button takes place
@@ -395,18 +395,7 @@ public class Frame extends JFrame {
         }
     }
 
-    private void saveTo() {
-        path = addSaveTo.getText();
-        addSaveTo.setEnabled(false);
-        addSaveTo.setEditable(false);
-    }
-
-    public void saveToField() {
-        path = addSaveTo.getText();
-        addSaveTo.setEnabled(false);
-    }
-
-    public void addFiles() {
+    private void addFiles() {
         String fileNm = addFileInput.getText();
         String dirNm = addFileInput.getText();
         String directoryName = dirNm;
@@ -523,10 +512,6 @@ public class Frame extends JFrame {
         }
     }
 
-    public void search() {
-
-    }
-
     private void preview() {
 
         /**
@@ -574,12 +559,6 @@ public class Frame extends JFrame {
         } else {
             JOptionPane.showMessageDialog(pane, "No files selected for preview.");
         }
-    }
-
-    private void createButtonControls() {
-
-        // TODO Auto-generated method stub
-
     }
 
     public void save() {
@@ -673,11 +652,11 @@ public class Frame extends JFrame {
 
     private void remove() {
         try {
-            //DefaultListModel model = (DefaultListModel) listFiles.getModel();
+            DefaultListModel model = (DefaultListModel) listFiles.getModel();
             int selectedIndex = listFiles.getSelectedIndex();
 
             if (selectedIndex != -1) {
-                listFiles.remove(selectedIndex);
+                model.remove(selectedIndex);
                 selectedFiles.remove(selectedIndex);
             }
 
@@ -687,6 +666,7 @@ public class Frame extends JFrame {
             JOptionPane.showMessageDialog(pane, "No file selected to remove.");
         }
     }
+
     public static Logger getLogger() {
         return LOGGER;
     }
