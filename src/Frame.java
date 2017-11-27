@@ -431,17 +431,20 @@ public class Frame extends JFrame {
         try {
             if (makeFileBox.isSelected() && selectedFiles != null) {
                 outputGen.writeMakeFile();
-                System.out.println("Generating makefile...");
+                //System.out.println("Generating makefile...");
+                Logs.userLog("makefile");
             }
 
             if (testFixtureBox.isSelected() && selectedFiles != null) {
                 outputGen.writeTestFixtures();
-                System.out.println("Generating testfixture(s)...");
+                //System.out.println("Generating testfixture(s)...");
+                Logs.userLog("testfixture");
             }
 
             if (unitTestBox.isSelected() && selectedFiles != null) {
                 outputGen.writeUnitTests();
-                System.out.println("Generating Unit Test file(s)...");
+                //System.out.println("Generating Unit Test file(s)...");
+                Logs.userLog("Unit Test file");
             }
 
             if (!makeFileBox.isSelected() && !testFixtureBox.isSelected() && !unitTestBox.isSelected()) {

@@ -155,7 +155,8 @@ public class OutputGenerator {
     public ArrayList getOutputFiles() {
         System.out.println();
         for (File file : outputFiles) {
-            System.out.println("File generated: " + file.getName());
+            //System.out.println("File generated: " + file.getName());
+            Logs.generatedFiles(file.getName());
         }
 
         return outputFiles;
