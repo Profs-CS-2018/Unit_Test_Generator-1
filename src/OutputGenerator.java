@@ -25,7 +25,7 @@ public class OutputGenerator {
 
     public void writeMakeFile() {
         ArrayList<String> objectList = new ArrayList<>();
-        File makefile = new File("makefile");
+        File makefile = new File(files.get(0).getParent()+ "\\" + "makefile");
         //file = new File(getDirectoryName());
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(makefile))) {
             writer.write("all: executable");
@@ -73,7 +73,11 @@ public class OutputGenerator {
             ArrayList<String> dependencies = parserInclude.parse(input);
             String className = input.getName().split("\\.")[0];
 
-            File testFixture = new File(className + "Fixture.h");
+            /**
+             * TODO: getPath() requires dynamic capability in the case where two files
+             * are selected from multiple locations.
+             */
+            File testFixture = new File(files.get(0).getParent()+ "\\" + className + "Fixture.h");
 
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(testFixture))) {
                 writer.write("#include \"TestHarness.h\"\n");
@@ -115,7 +119,7 @@ public class OutputGenerator {
             String className = input.getName().split("\\.")[0];
             String fixtureName = className + "Fixture";
 
-            File unitTestFile = new File(className + "Test.cpp");
+            File unitTestFile = new File(files.get(0).getParent() + "\\" + className + "Test.cpp");
 
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(unitTestFile))) {
                 ArrayList<String> methodList = parserCPP.parse(input);
