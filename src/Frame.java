@@ -398,14 +398,11 @@ public class Frame extends JFrame {
     private void addFiles() {
         String fileNm = addFileInput.getText();
         File file = new File(fileNm);
-        String dirNm = addFileInput.getText();
-        String directoryName = dirNm;//replace("\\", "\\\\")
-        File directory = new File(directoryName);
 
         /**
          * Checks if directory does not exists or the directory text field is empty
          */
-        if (dirNm.isEmpty() || !directory.exists()) {
+        if (!file.exists()) {
             JOptionPane.showMessageDialog(null, "Please enter valid directory name");
         }
         /**
@@ -415,52 +412,17 @@ public class Frame extends JFrame {
          *
          */
         else {
-            String absolutePath = dirNm; // + "\\" + fileNm;
-            /**
-             * Case 1: user does not enter file name
-             *
-             */
-            if (fileNm.isEmpty()) {
-                //fc.setCurrentDirectory(new File(directoryName));
-                System.out.println(directoryName);
-                int returnVal = fc.showOpenDialog(pane);
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
                     if (dm.isEmpty()) {
                         dm.addElement(file.getAbsolutePath());
-                    } else {
-                        System.out.println(dm.contains(fc.getSelectedFile().getAbsolutePath()));
-                        if (dm.contains(fc.getSelectedFile().getAbsolutePath())) {
+                        listFiles.setModel(dm);
+                    }
+                    else if(dm.contains(file.getAbsolutePath())) {
                             JOptionPane.showMessageDialog(null, "Duplicate exists");
-                            listFiles.setSelectedIndex(dm.indexOf(file.getAbsolutePath()));
                         } else {
                             dm.addElement(file.getAbsolutePath());
+                        listFiles.setModel(dm);
                         }
-                    }
-
-                }
             }
-            /**
-             * Case 2: user enters file name
-             */
-            else {
-                dm.addElement(file.getAbsolutePath());
-               // fc.setSelectedFile(new File(absolutePath));
-                int returnVal1 = fc.showOpenDialog(pane);
-                if (returnVal1 == JFileChooser.APPROVE_OPTION) {
-                    if (dm.isEmpty()) {
-                        dm.addElement(fc.getSelectedFile().getAbsolutePath());
-                    } else {
-                        System.out.println(dm.contains(fc.getSelectedFile().getAbsolutePath()));
-                        if (dm.contains(fc.getSelectedFile().getAbsolutePath())) {
-                            JOptionPane.showMessageDialog(null, "Duplicate exists");
-                            listFiles.setSelectedIndex(dm.indexOf(fc.getSelectedFile().getAbsolutePath()));
-                        } else {
-                            dm.addElement(fc.getSelectedFile().getAbsolutePath());
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private void submit() {
