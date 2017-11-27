@@ -57,8 +57,12 @@ public class Frame extends JFrame {
     //Text Areas
     private JTextField textFieldSave;
     private JTextField addSaveTo;
+    private JTextField addFileInput;
     private JTextField textField;
     private JTextArea failure;
+
+    //Content Panels
+    private JPanel outputPanel;
 
     //Check Boxes
     private JCheckBox allFilesBox;
@@ -76,6 +80,7 @@ public class Frame extends JFrame {
 
     //List that takes and stores path names
     private JList<?> listFiles;
+    private JList<File> generatedFiles;
 
     //Progress bar
     private JProgressBar progressBar;
@@ -116,32 +121,41 @@ public class Frame extends JFrame {
     } /* End of Constructor */
 
     /**
-     *
+     * Creates the Frame Dimensions and Defaults.
      */
     private void createFrame() {
-        int width = 700;
+        int width = 1000;
         int height = 500;
 
+        //Set the Frame Dimensions
         setPreferredSize(new Dimension(width, height));
         pack();
+
+        //Set the Default Close Operation
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); //this should center the app
-    }/* End of Frame */
+
+        //Center the Window Frame
+        setLocationRelativeTo(null);
+
+    }/* End of createFrame()*/
 
     /**
      *
      */
     private void createContent() {
+        //Pane instantiation
         pane = getContentPane();
 
+        //Default Model List instantiation
         dm = new DefaultListModel();
 
+        //JList instantiation
         listFiles = new JList<DefaultListModel>();
 
-        progressBar = new JProgressBar();
-
+        //String instantiation
         path = "";
 
+        //Array List instantiation
         selectedFiles = new ArrayList<>();
 
         fixedLabel = new JLabel("Output Save Destination");
@@ -192,22 +206,26 @@ public class Frame extends JFrame {
         JPanel westContainer = new JPanel();
         JPanel togglePanel = new JPanel();
         JPanel fileInputPanel = new JPanel();
+        outputPanel = new JPanel();
         JPanel imagePanel = new JPanel();
 
         addSaveTo = new JTextField("Type Save To Location Here");
-        JTextField addFileInput = new JTextField("Type Filename Here");
+        addFileInput = new JTextField("Type Filename Here");
         JTextField addDirectoryInput = new JTextField("Type Search Directory Here");
 
         //Border Layout Display Panels
         filePanel.setLayout(new BorderLayout(7, 7));
         previewPanel.setLayout(new BorderLayout(7, 7));
         errorPanel.setLayout(new BorderLayout(7, 7));
+        outputPanel.setLayout(new BorderLayout(7, 7));
 
         //Grid Layout Button Panels
         sideBtnPanel.setLayout(new GridLayout(0, 2));
         btmBtnPanel.setLayout(new GridLayout(0, 2));
         fileInputPanel.setLayout(new GridLayout(0, 2));
         togglePanel.setLayout(new GridLayout(4, 1));
+
+
         //Flow Layout Output Selection Toggles
         northContainer.setLayout(new FlowLayout());
         submitBtnPartition.setLayout(new FlowLayout());
@@ -229,6 +247,7 @@ public class Frame extends JFrame {
         //scrollPane.add(filePanel);
         tabbedPane.addTab("Input Files", new JScrollPane(filePanel));
         tabbedPane.addTab("Preview", previewPanel);
+        tabbedPane.addTab("Generated Files", new JScrollPane(outputPanel));
         tabbedPane.addTab("Errors", errorPanel);
         //sideBtnPanel.add(browse);
         //sideBtnPanel.add(preview);
@@ -267,6 +286,7 @@ public class Frame extends JFrame {
         cancel.addActionListener(e -> close());
         submit.addActionListener(e -> submit());
         remove.addActionListener(e -> remove());
+        addFile.addActionListener(e -> addFiles());
         //saveTo.addActionListener(e -> saveTo());
 
         //Adding Check Box Listeners
@@ -386,6 +406,72 @@ public class Frame extends JFrame {
         addSaveTo.setEnabled(false);
     }
 
+    public void addFiles() {
+        String fileNm = addFileInput.getText();
+        String dirNm = addFileInput.getText();
+        String directoryName = dirNm;
+        File directory = new File(directoryName);
+
+        /**
+         * Checks if directory does not exists or the directory text field is empty
+         */
+        if (dirNm.isEmpty() || !directory.exists()) {
+            JOptionPane.showMessageDialog(null, "Please enter valid directory name");
+        }
+        /**
+         * In case directory entered exists user can either
+         * 1. Enter a file name
+         * 2. Not enter a file name
+         *
+         */
+        else {
+            String absolutePath = dirNm + "\\" + fileNm;
+            /**
+             * Case 1: user does not enter file name
+             *
+             */
+            if (fileNm.isEmpty()) {
+                fc.setCurrentDirectory(new File(directoryName));
+                System.out.println(directoryName);
+                int returnVal = fc.showOpenDialog(pane);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    if (dm.isEmpty()) {
+                        dm.addElement(fc.getSelectedFile().getAbsolutePath());
+                    } else {
+                        System.out.println(dm.contains(fc.getSelectedFile().getAbsolutePath()));
+                        if (dm.contains(fc.getSelectedFile().getAbsolutePath())) {
+                            JOptionPane.showMessageDialog(null, "Duplicate exists");
+                            listFiles.setSelectedIndex(dm.indexOf(fc.getSelectedFile().getAbsolutePath()));
+                        } else {
+                            dm.addElement(fc.getSelectedFile().getAbsolutePath());
+                        }
+                    }
+
+                }
+            }
+            /**
+             * Case 2: user enters file name
+             */
+            else {
+                fc.setSelectedFile(new File(absolutePath));
+                int returnVal1 = fc.showOpenDialog(pane);
+                if (returnVal1 == JFileChooser.APPROVE_OPTION) {
+                    if (dm.isEmpty()) {
+                        dm.addElement(fc.getSelectedFile().getAbsolutePath());
+                    } else {
+                        System.out.println(dm.contains(fc.getSelectedFile().getAbsolutePath()));
+                        if (dm.contains(fc.getSelectedFile().getAbsolutePath())) {
+                            JOptionPane.showMessageDialog(null, "Duplicate exists");
+                            listFiles.setSelectedIndex(dm.indexOf(fc.getSelectedFile().getAbsolutePath()));
+                        } else {
+                            dm.addElement(fc.getSelectedFile().getAbsolutePath());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private void submit() {
         OutputGenerator outputGen = new OutputGenerator(selectedFiles);
 
@@ -408,6 +494,10 @@ public class Frame extends JFrame {
             if (!makeFileBox.isSelected() && !testFixtureBox.isSelected() && !unitTestBox.isSelected()) {
                 JOptionPane.showMessageDialog(pane, "No output options selected.");
             }
+
+            ArrayList<File> outputFiles = outputGen.getOutputFiles();
+            generatedFiles = new JList<>(outputFiles.toArray(new File[0]));
+            outputPanel.add(generatedFiles);
         } catch (Exception e1) //catch any error which happens to have resulted in generation failure
         {
             JOptionPane.showMessageDialog(null, "ERROR: See Error Information Tab " +
