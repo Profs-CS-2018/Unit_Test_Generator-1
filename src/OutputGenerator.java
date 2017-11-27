@@ -1,32 +1,36 @@
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public class OutputGenerator {
 
-    private ArrayList<File> outputFiles;
     private ArrayList<File> files;
+    private ArrayList<File> filesCPP;
+    private ArrayList<File> filesH;
+    private ArrayList<File> outputFiles;
     //private ArrayList<File> testFixtures;
-    private ParseCPP parserCPP;
-    private ParseInclude parserInclude;
+    private Parser parser;
     private static final Logger LOGGER = Logger.getLogger(OutputGenerator.class.getName());
 
     public OutputGenerator(ArrayList<File> files) {
         this.files = files;
-        parserInclude = new ParseInclude(files.get(0).getAbsolutePath(), files);
-        parserCPP = new ParseCPP(files.get(0).getAbsolutePath(), files);
+        parser = new Parser();
+        filesCPP = new ArrayList<>();
+        filesH = new ArrayList<>();
         outputFiles = new ArrayList<>();
+        initializeFileLists();
     }
 
     public void writeMakeFile() {
         ArrayList<String> objectList = new ArrayList<>();
-        File makefile = new File("makefile");
+        File makeFile = new File("makefile");
         //file = new File(getDirectoryName());
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(makefile))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(makeFile))) {
             writer.write("all: executable");
             writer.write("\n\nOBJS =");
 
-            for (File object : files) {
+            for (File object : filesCPP) {
                 String oFile = object.getName().split("\\.")[0] + ".o";
                 //String fileNm = object.getName();
                 //System.out.println("Hea:" + fileNm);
@@ -41,10 +45,10 @@ public class OutputGenerator {
             writer.write("\n\nexecutable : $(OBJS)");
             writer.write("\n\t$(CC) $(LFLAGS) $(OBJS) -o executable");
 
-            for (File input : files) {
+            for (File input : filesCPP) {
                 String oFile = input.getName().split("\\.")[0] + ".o";
                 writer.write("\n\n" + oFile + " : ");
-                ArrayList<String> dependencies = parserInclude.parse(input);
+                ArrayList<String> dependencies = parser.searchForIncludes(input);
 
                 for (String dependency : dependencies) {
                     writer.write(dependency);
@@ -57,15 +61,15 @@ public class OutputGenerator {
             writer.flush();
             writer.close();
 
-            outputFiles.add(makefile);
+            outputFiles.add(makeFile);
         } catch (Exception e) {
             System.out.println("Error generating makefile.");
         }
     }
 
     public void writeTestFixtures() {
-        for (File input : files) {
-            ArrayList<String> dependencies = parserInclude.parse(input);
+        for (File input : filesCPP) {
+            ArrayList<String> dependencies = parser.searchForIncludes(input);
             String className = input.getName().split("\\.")[0];
 
             File testFixture = new File(className + "Fixture.h");
@@ -106,14 +110,14 @@ public class OutputGenerator {
     }
 
     public void writeUnitTests() {
-        for (File input : files) {
+        for (File input : filesCPP) {
             String className = input.getName().split("\\.")[0];
             String fixtureName = className + "Fixture";
 
             File unitTestFile = new File(className + "Test.cpp");
 
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(unitTestFile))) {
-                ArrayList<String> methodList = parserCPP.parse(input);
+                ArrayList<String> methodList = parser.searchForMethods(input);
 
                 writer.write("#include \"TestHarness.h\"");
                 writer.write("\n#include \"" + fixtureName + ".h\"");
@@ -131,6 +135,7 @@ public class OutputGenerator {
 
                 outputFiles.add(unitTestFile);
             } catch (Exception e) {
+                System.out.println("error");
                 e.printStackTrace();
             }
         }
@@ -143,13 +148,16 @@ public class OutputGenerator {
         return directoryName;
     }
 
-    public ArrayList getOutputFiles() {
-        System.out.println();
-        for (File file : outputFiles) {
-            System.out.println("File generated: " + file.getName());
+    public void initializeFileLists() {
+        for (File file : files) {
+            String fileName = file.getName();
+            String fileExtension = getFileExtension(fileName);
+            if (fileExtension.equals("cpp")) {
+                filesCPP.add(file);
+            } else if (fileExtension.equals("h")) {
+                filesH.add(file);
+            }
         }
-
-        return outputFiles;
     }
 
     private String getFileExtension(String fileName) {
@@ -159,5 +167,14 @@ public class OutputGenerator {
             extension = fileName.substring(i + 1);
         }
         return extension;
+    }
+
+    public ArrayList getOutputFiles() {
+        System.out.println();
+        for (File file : outputFiles) {
+            System.out.println("File generated: " + file.getName());
+        }
+
+        return outputFiles;
     }
 }
