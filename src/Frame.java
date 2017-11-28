@@ -265,6 +265,9 @@ public class Frame extends JFrame {
         makeFileBox.addActionListener(e -> makeFilesChecked());
         testFixtureBox.addActionListener(e -> testFixtureFilesChecked());
         unitTestBox.addActionListener(e -> unitTestFilesChecked());
+        makeFileBox.addActionListener(e -> otherFilesSelected());
+        testFixtureBox.addActionListener(e -> otherFilesSelected());
+        unitTestBox.addActionListener(e -> otherFilesSelected());
     }
 
     private void createMenuBar() {
@@ -602,6 +605,17 @@ public class Frame extends JFrame {
             makeFileBox.setSelected(false);
             testFixtureBox.setSelected(false);
             unitTestBox.setSelected(false);
+        }
+    }
+    
+    private void otherFilesSelected() {
+        // if all boxes are selected automatically select the "All Files" box
+        boolean makeFile = makeFileBox.isSelected();
+        boolean testFixture = testFixtureBox.isSelected();
+        boolean unitTest = unitTestBox.isSelected();
+        if (makeFile && testFixture && unitTest)
+        {
+            allFilesBox.setSelected(true);
         }
     }
 
