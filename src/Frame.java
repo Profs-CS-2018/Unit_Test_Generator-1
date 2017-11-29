@@ -185,7 +185,7 @@ public class Frame extends JFrame {
         JButton remove = new JButton("Remove");
 
         JButton addFile = new JButton("Add File");
-        JButton findFile = new JButton("Search");
+        //JButton findFile = new JButton("Search");
         JButton saveTo = new JButton("Save To");
 
         JButton submit = new JButton("Submit");
@@ -209,7 +209,7 @@ public class Frame extends JFrame {
         outputPanel = new JPanel();
         JPanel imagePanel = new JPanel();
 
-        addSaveTo = new JTextField("Type Save To Location Here");
+        //addSaveTo = new JTextField("Type Save To Location Here");
         addFileInput = new JTextField("Type Filename Here");
         JTextField addDirectoryInput = new JTextField("Type Search Directory Here");
 
