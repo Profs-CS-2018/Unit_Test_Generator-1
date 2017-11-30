@@ -19,6 +19,7 @@ import java.nio.file.PathMatcher;
 import java.nio.file.FileSystems;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
+import javax.swing.border.TitledBorder;
 
 /**
  * Frame Class extends JFrame
@@ -99,6 +100,7 @@ public class Frame extends JFrame {
          */
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            setDefaultLookAndFeelDecorated(true);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
@@ -183,7 +185,7 @@ public class Frame extends JFrame {
         JPanel fileInputPanel = new JPanel();
         JPanel imagePanel = new JPanel();
 
-        addFileInput = new JTextField("Type Filename to for Here");
+        addFileInput = new JTextField("Search for File");
 
         //Border Layout Display Panels
         filePanel.setLayout(new BorderLayout(7, 7));
@@ -195,18 +197,23 @@ public class Frame extends JFrame {
         sideBtnPanel.setLayout(new GridLayout(0, 2));
         btmBtnPanel.setLayout(new GridLayout(0, 2));
         fileInputPanel.setLayout(new GridLayout(0, 2));
-        togglePanel.setLayout(new GridLayout(2, 1));
+        togglePanel.setLayout(new GridLayout(1, 4));
 
         //Flow Layout Output Selection Toggles
         northContainer.setLayout(new FlowLayout());
         submitBtnPartition.setLayout(new FlowLayout());
         cancelBtnPartition.setLayout(new BorderLayout());
-        togglePanel.setLayout(new GridLayout());
         eastContainer.setLayout(new BorderLayout());
         southContainer.setLayout(new FlowLayout());
         westContainer.setLayout(new FlowLayout());
 
-        togglePanel.setName("Select the type(s) of files to generate:");
+
+        TitledBorder border = new TitledBorder("Select the type(s) of files to generate:");
+        border.setTitleJustification(TitledBorder.CENTER);
+        border.setTitlePosition(TitledBorder.TOP);
+
+        JPanel panel = new JPanel();
+        togglePanel.setBorder(border);
         togglePanel.setVisible(true);
         togglePanel.add(allFilesBox);
         togglePanel.add(makeFileBox);
@@ -379,11 +386,12 @@ public class Frame extends JFrame {
         String back = "]*";
         front += fileNm;
         front += back;
-        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + front);
+        File file = new File(addFileInput.getText());
+        /*PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + fileNm);
         System.out.println(matcher.toString());
         File file = new File(matcher.toString());
         Path pathNm = getPaths(matcher);
-        System.out.println(pathNm.toString());
+        System.out.println(pathNm.toString());*/
 
 
 
@@ -426,14 +434,14 @@ public class Frame extends JFrame {
                 }
             }
 
-            if(matcher.matches(pathNm))
+            /*if(matcher.matches(pathNm))
             {
                 System.out.println(pathNm);
             }
             else
             {
 
-            }
+            }*/
         }
     }
 
