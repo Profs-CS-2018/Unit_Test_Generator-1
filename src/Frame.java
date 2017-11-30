@@ -15,7 +15,10 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.util.Set;
 import java.util.HashSet;
-
+import java.nio.file.PathMatcher;
+import java.nio.file.FileSystems;
+import java.nio.file.FileSystem;
+import java.nio.file.Path;
 
 /**
  * Frame Class extends JFrame
@@ -41,7 +44,6 @@ public class Frame extends JFrame {
 
     //Text Areas
     private JTextField textFieldSave;
-    private JTextField addSaveTo;
     private JTextField addFileInput;
     private JTextField textField;
     private JTextArea failure;
@@ -72,6 +74,9 @@ public class Frame extends JFrame {
 
     //Path name variable for storing the Path name.
     private String path;
+
+    //Declare the Output Generator Object
+    OutputGenerator outputGen;
 
     //Call upon the logging capabilities
     private static final Logger LOGGER = Logger.getLogger(Frame.class.getName());
@@ -156,8 +161,6 @@ public class Frame extends JFrame {
         JButton remove = new JButton("Remove");
 
         JButton addFile = new JButton("Add File");
-        //JButton findFile = new JButton("Search");
-        JButton saveTo = new JButton("Save To");
 
         JButton submit = new JButton("Submit");
         JButton cancel = new JButton("Close");
@@ -180,9 +183,7 @@ public class Frame extends JFrame {
         JPanel fileInputPanel = new JPanel();
         JPanel imagePanel = new JPanel();
 
-        //addSaveTo = new JTextField("Type Save To Location Here");
-        addFileInput = new JTextField("Type Filename Here");
-        JTextField addDirectoryInput = new JTextField("Type Search Directory Here");
+        addFileInput = new JTextField("Type Filename to for Here");
 
         //Border Layout Display Panels
         filePanel.setLayout(new BorderLayout(7, 7));
@@ -212,34 +213,24 @@ public class Frame extends JFrame {
         togglePanel.add(testFixtureBox);
         togglePanel.add(unitTestBox);
 
-        //layer1.add(textField);
         filePanel.add(inputFiles);
-        //scrollPane.add(filePanel);
         tabbedPane.addTab("Input Files", new JScrollPane(filePanel));
         tabbedPane.addTab("Preview", previewPanel);
         tabbedPane.addTab("Generated Files", new JScrollPane(outputPanel));
         tabbedPane.addTab("Errors", errorPanel);
-        //sideBtnPanel.add(browse);
-        //sideBtnPanel.add(preview);
 
-        //fileInputPanel.add(remove);
-        //fileInputPanel.add(addSaveTo);
-        //fileInputPanel.add(saveTo);
         fileInputPanel.add(addFileInput);
         fileInputPanel.add(addFile);
-        fileInputPanel.add(addDirectoryInput);
-        fileInputPanel.add(findFile);
         fileInputPanel.add(browse);
-        fileInputPanel.add(preview);
         fileInputPanel.add(remove);
+        fileInputPanel.add(preview);
+
 
         btmBtnPanel.add(submit);
         btmBtnPanel.add(cancel);
-        //northContainer.add(togglePanel);
 
         submitBtnPartition.add(btmBtnPanel);
         cancelBtnPartition.add(btmBtnPanel);
-        //eastContainer.add(sideBtnPanel, BorderLayout.CENTER);
         eastContainer.add(fileInputPanel, BorderLayout.SOUTH);
         eastContainer.add(togglePanel, BorderLayout.EAST);
         southContainer.add(submitBtnPartition);
@@ -256,7 +247,6 @@ public class Frame extends JFrame {
         preview.addActionListener(e -> preview());
         cancel.addActionListener(e -> close());
         submit.addActionListener(e -> submit());
-        saveTo.addActionListener(e -> saveTo());
         remove.addActionListener(e -> remove());
         addFile.addActionListener(e -> addFiles());
 
@@ -383,16 +373,26 @@ public class Frame extends JFrame {
     }
 
     private void addFiles() {
+        String front = "*[";
         String fileNm = addFileInput.getText();
-        String dirNm = addFileInput.getText();
-        String directoryName = dirNm;
-        File directory = new File(directoryName);
+        String dirNm = addFileInput.getParent().toString();
+        String back = "]*";
+        front += fileNm;
+        front += back;
+        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + front);
+        System.out.println(matcher.toString());
+        File file = new File(matcher.toString());
+        Path pathNm = getPaths(matcher);
+        System.out.println(pathNm.toString());
+
+
+
         int returnVal;
 
         /**
          * Checks if directory does not exists or the directory text field is empty
          */
-        if (dirNm.isEmpty() || !directory.exists()) {
+        if (dirNm.isEmpty() || !file.exists()) {
             JOptionPane.showMessageDialog(null, "Please enter valid directory name");
         }
         /**
@@ -402,18 +402,13 @@ public class Frame extends JFrame {
          *
          */
         else {
-            String absolutePath = dirNm + "\\" + fileNm;
-            /**
-             * Case 1: user does not enter file name
-             *
-             */
 
             if (fileNm.isEmpty()) {
-                fc.setCurrentDirectory(new File(directoryName));
-                System.out.println(directoryName);
+                fc.setCurrentDirectory(new File(fileNm));
+                System.out.println(fileNm);
                 returnVal = fc.showOpenDialog(pane);
             } else {
-                fc.setSelectedFile(new File(absolutePath));
+                fc.setSelectedFile(new File(fileNm));
                 returnVal = fc.showOpenDialog(pane);
             }
 
@@ -430,22 +425,27 @@ public class Frame extends JFrame {
                     }
                 }
             }
+
+            if(matcher.matches(pathNm))
+            {
+                System.out.println(pathNm);
+            }
+            else
+            {
+
+            }
         }
     }
 
-    private void saveTo() {
-        path = addSaveTo.getText();
-        addSaveTo.setEnabled(false);
-        addSaveTo.setEditable(false);
-    }
-
-    public void saveToField() {
-        path = addSaveTo.getText();
-        addSaveTo.setEnabled(false);
+    public Path getPaths(PathMatcher matcher)
+    {
+        String path_name = matcher.toString();
+        Path pathNm = FileSystems.getDefault().getPath(path_name);
+        return pathNm;
     }
 
     private void submit() {
-        OutputGenerator outputGen = new OutputGenerator(selectedFiles);
+        outputGen = new OutputGenerator(selectedFiles);
         int filesCPPSize = outputGen.getFilesCPPSize();
         //JList.setListData(new String[0]);
 
@@ -586,9 +586,9 @@ public class Frame extends JFrame {
     }
 
     private void close() {
-
+        outputGen = new OutputGenerator(selectedFiles);
         dispose();
-        OutputGenerator.moveOutputFiles();
+        outputGen.moveOutputFiles();
 
     }
 
@@ -607,7 +607,7 @@ public class Frame extends JFrame {
             unitTestBox.setSelected(false);
         }
     }
-    
+
     private void otherFilesSelected() {
         // if all boxes are selected automatically select the "All Files" box
         boolean makeFile = makeFileBox.isSelected();
