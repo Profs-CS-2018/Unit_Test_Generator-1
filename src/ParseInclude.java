@@ -27,7 +27,6 @@ public class ParseInclude extends Parser{
                     line = line.replace("#include ", "");
                     line = line.replaceAll("\"", "");
                     lineList.add("Line: " + (num + 1) + ".) " + line);
-                    System.out.println("File Dependency: " + line);
                     parseList.add(line);
                 }
                 num++;
@@ -37,6 +36,4 @@ public class ParseInclude extends Parser{
         }
         return parseList;
     }
-
-
 }

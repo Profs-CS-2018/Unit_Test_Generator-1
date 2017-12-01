@@ -8,7 +8,6 @@ public class OutputGenerator {
     private ArrayList<File> filesCPP;
     private ArrayList<File> filesH;
     private ArrayList<File> files;
-    //private ArrayList<File> testFixtures;
     private ParseCPP parserCPP;
     private ParseInclude parserInclude;
     private static final Logger LOGGER = Logger.getLogger(OutputGenerator.class.getName());
@@ -33,8 +32,6 @@ public class OutputGenerator {
 
             for (File object : filesCPP) {
                 String oFile = object.getName().split("\\.")[0] + ".o";
-                //String fileNm = object.getName();
-                //System.out.println("Hea:" + fileNm);
                 objectList.add(oFile);
                 writer.write(" " + oFile);
             }
@@ -83,7 +80,6 @@ public class OutputGenerator {
                 writer.write("#include \"TestHarness.h\"\n");
 
                 for (String header : dependencies) {
-                    System.out.println(header);
                     writer.write("#include " + '"' + header + '"' + "\n");
                 }
 
@@ -153,11 +149,6 @@ public class OutputGenerator {
     }
 
     public ArrayList getOutputFiles() {
-        System.out.println();
-        for (File file : outputFiles) {
-            System.out.println("File generated: " + file.getName());
-        }
-
         return outputFiles;
     }
 
@@ -172,8 +163,6 @@ public class OutputGenerator {
             }
         }
     }
-
-
 
     private String getFileExtension(String fileName) {
         String extension = "NoExtension";
