@@ -173,8 +173,6 @@ public class OutputGenerator {
         }
     }
 
-
-
     private String getFileExtension(String fileName) {
         String extension = "NoExtension";
         int i = fileName.lastIndexOf('.');

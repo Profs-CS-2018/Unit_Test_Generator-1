@@ -1,8 +1,10 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 public class ParseCPP extends Parser{
 
+    private static final Logger LOGGER = Logger.getLogger(ParseCPP.class.getName());
     public ParseCPP(String path, ArrayList<File> files)
     {
         super(path);

@@ -15,7 +15,7 @@ public class Parser implements ParserI {
     private ArrayList<File> filesH;
     private String path = "";
 
-    private static final Logger LOGGER = Logger.getLogger(OutputGenerator.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Parser.class.getName());
 
     public Parser(String path){
         this.path = path;

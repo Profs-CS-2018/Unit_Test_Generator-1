@@ -594,10 +594,8 @@ public class Frame extends JFrame {
     }
 
     private void close() {
-        outputGen = new OutputGenerator(selectedFiles);
-        dispose();
         outputGen.moveOutputFiles();
-
+        dispose();
     }
 
     private void allFilesChecked() {
