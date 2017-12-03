@@ -20,6 +20,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.DefaultEditorKit;
 
 /**
  * Frame Class extends JFrame
@@ -251,18 +252,9 @@ public class Frame extends JFrame {
         pane.add(northContainer, BorderLayout.NORTH);
         pane.add(westContainer, BorderLayout.WEST);
 
-        //filePanel.setPreferredSize(new Dimension(300, 300));
         previewPanel.setPreferredSize(new Dimension(100, 100));
         errorPanel.setPreferredSize(new Dimension(100, 100));
         outputPanel.setPreferredSize(new Dimension(100, 100));
-        //sideBtnPanel.setPreferredSize(new Dimension(100, 100));
-        //btmBtnPanel.setPreferredSize(new Dimension(100, 100));
-        //northContainer.setPreferredSize(new Dimension(100, 100));
-        //submitBtnPartition.setPreferredSize(new Dimension(100, 100));
-        //cancelBtnPartition.setPreferredSize(new Dimension(100, 100));
-        //eastContainer.setPreferredSize(new Dimension(100, 100));
-        // southContainer.setPreferredSize(new Dimension(100, 100));
-        //westContainer.setPreferredSize(new Dimension(100, 100));
         togglePanel.setPreferredSize(new Dimension(500, 100));
         fileInputPanel.setPreferredSize(new Dimension(300, 100));
         imagePanel.setPreferredSize(new Dimension(100, 100));
@@ -293,20 +285,20 @@ public class Frame extends JFrame {
         menubar.add(FILE);
 
         JMenuItem BROWSE = new JMenuItem("Browse");
-        JMenuItem SAVE = new JMenuItem("Save");
         JMenuItem EXIT = new JMenuItem("Exit");
         FILE.add(BROWSE);
-        FILE.add(SAVE);
         FILE.add(EXIT);
         BROWSE.addActionListener(e -> browse());
-        SAVE.addActionListener(e -> browse());
         EXIT.addActionListener(e -> close());
 
         JMenu EDIT = new JMenu("Edit");
         menubar.add(EDIT);
-        JMenuItem CUT = new JMenuItem("Cut");
-        JMenuItem COPY = new JMenuItem("Copy");
-        JMenuItem PASTE = new JMenuItem("Paste");
+        Action CUT = new DefaultEditorKit.CutAction();
+        CUT.putValue(Action.NAME, "Cut");
+        Action COPY = new DefaultEditorKit.CopyAction();
+        COPY.putValue(Action.NAME, "Copy");
+        Action PASTE = new DefaultEditorKit.PasteAction();
+        PASTE.putValue(Action.NAME, "Paste");
         EDIT.add(CUT);
         EDIT.add(COPY);
         EDIT.add(PASTE);
@@ -587,43 +579,49 @@ public class Frame extends JFrame {
          * if it does then the user sees the textArea on the Preview tab changed to
          * have the preview of the output file in it.
          */
-        int selectedIndex = generatedFiles.getSelectedIndex();
+        if(generatedFiles != null) {
+            int selectedIndex = generatedFiles.getSelectedIndex();
 
-        if (selectedIndex != -1) {
+            if (selectedIndex != -1) {
 
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(generatedFiles.getSelectedValue().toString()));
-                String sCurrentLine;
-                String preview = "Preview";
-                /**
-                 * trying to create a new Panel here.
-                 */
-                JScrollPane scrollPane = new JScrollPane();
-                JPanel fileContent = new JPanel();
-                fileContent.setLayout(new BorderLayout());
-                JTextArea textArea = new JTextArea();
+                try {
+                    BufferedReader br = new BufferedReader(new FileReader(generatedFiles.getSelectedValue().toString()));
+                    String sCurrentLine;
+                    String preview = "Preview";
+                    /**
+                     * trying to create a new Panel here.
+                     */
+                    JScrollPane scrollPane = new JScrollPane();
+                    JPanel fileContent = new JPanel();
+                    fileContent.setLayout(new BorderLayout());
+                    JTextArea textArea = new JTextArea();
 
-                /**
-                 * Lines below again for testing
-                 */
-                if (tabbedPane.indexOfTab(preview) == 1) {
-                    while ((sCurrentLine = br.readLine()) != null) {
-                        textArea.append(sCurrentLine + "\n");
+                    /**
+                     * Lines below again for testing
+                     */
+                    if (tabbedPane.indexOfTab(preview) == 1) {
+                        while ((sCurrentLine = br.readLine()) != null) {
+                            textArea.append(sCurrentLine + "\n");
+                        }
+
+                        textArea.setEditable(false);
+                        fileContent.add(textArea);
+
+                        tabbedPane.setComponentAt(1, new JScrollPane(fileContent));
+                        tabbedPane.getModel().setSelectedIndex(tabbedPane.indexOfTab(preview));
                     }
-
-                    textArea.setEditable(false);
-                    fileContent.add(textArea);
-
-                    tabbedPane.setComponentAt(1, new JScrollPane(fileContent));
-                    tabbedPane.getModel().setSelectedIndex(tabbedPane.indexOfTab(preview));
+                    //JOptionPane.showMessageDialog(pane, "See Preview Tab.");
+                } catch (Exception e1) {
+                    JOptionPane.showMessageDialog(null, e1.getMessage());
                 }
-                //JOptionPane.showMessageDialog(pane, "See Preview Tab.");
-            } catch (Exception e1) {
-                JOptionPane.showMessageDialog(null, e1.getMessage());
+            } else {
+                JOptionPane.showMessageDialog(pane, "No files selected for preview.");
             }
-        } else {
-            JOptionPane.showMessageDialog(pane, "No files selected for preview.");
+        }else
+        {
+            JOptionPane.showMessageDialog(pane, "No files generated to preview.");
         }
+
     }
 
     private void createButtonControls() {
