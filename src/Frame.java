@@ -560,7 +560,7 @@ public class Frame extends JFrame {
 
                 ArrayList<File> outputFiles = outputGen.getOutputFiles();
                 generatedFiles = new JList<>(outputFiles.toArray(new File[0]));
-                outputPanel.add(generatedFiles);
+                outputPanel.add(new JScrollPane(generatedFiles));
 
             } else {
                 JOptionPane.showMessageDialog(pane, "No C++ classes were selected.");
