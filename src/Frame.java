@@ -38,6 +38,7 @@ public class Frame extends JFrame {
     //Tab Pane
     private JTabbedPane tabbedPane;
     private JPanel outputPanel;
+    private JPanel filePanel;
 
     //File Choosers
     private JFileChooser fc;
@@ -169,7 +170,7 @@ public class Frame extends JFrame {
 
         tabbedPane = new JTabbedPane();
 
-        JPanel filePanel = new JPanel();
+        filePanel = new JPanel();
         JPanel previewPanel = new JPanel();
         JPanel errorPanel = new JPanel();
         outputPanel = new JPanel();
@@ -239,7 +240,8 @@ public class Frame extends JFrame {
         submitBtnPartition.add(btmBtnPanel);
         cancelBtnPartition.add(btmBtnPanel);
         eastContainer.add(fileInputPanel, BorderLayout.SOUTH);
-        eastContainer.add(togglePanel, BorderLayout.EAST);
+        eastContainer.add(togglePanel, BorderLayout.NORTH);
+        eastContainer.add(imagePanel, BorderLayout.CENTER);
         southContainer.add(submitBtnPartition);
         southContainer.add(cancelBtnPartition);
 
@@ -248,6 +250,22 @@ public class Frame extends JFrame {
         pane.add(southContainer, BorderLayout.SOUTH);
         pane.add(northContainer, BorderLayout.NORTH);
         pane.add(westContainer, BorderLayout.WEST);
+
+        //filePanel.setPreferredSize(new Dimension(300, 300));
+        previewPanel.setPreferredSize(new Dimension(100, 100));
+        errorPanel.setPreferredSize(new Dimension(100, 100));
+        outputPanel.setPreferredSize(new Dimension(100, 100));
+        //sideBtnPanel.setPreferredSize(new Dimension(100, 100));
+        //btmBtnPanel.setPreferredSize(new Dimension(100, 100));
+        //northContainer.setPreferredSize(new Dimension(100, 100));
+        //submitBtnPartition.setPreferredSize(new Dimension(100, 100));
+        //cancelBtnPartition.setPreferredSize(new Dimension(100, 100));
+        //eastContainer.setPreferredSize(new Dimension(100, 100));
+       // southContainer.setPreferredSize(new Dimension(100, 100));
+       //westContainer.setPreferredSize(new Dimension(100, 100));
+        togglePanel.setPreferredSize(new Dimension(500, 100));
+        fileInputPanel.setPreferredSize(new Dimension(300, 100));
+        imagePanel.setPreferredSize(new Dimension(100, 100));
 
         //Adding Button Listeners
         browse.addActionListener(e -> browse());
@@ -379,62 +397,127 @@ public class Frame extends JFrame {
         }
     }
 
+    private void addFiles1() {
+    /**
+     * @Aanchal Chaturvedi
+     * The add file button works based on the two text fields
+     *  1. File name
+     *  2. Directory name
+     * Entering a directory name is MUST. (otherwise it would be like creating something similar to Browse)
+     * If user does not add directory name or adds an incorrect directory name Error pops up saying they have to enter a valid directory name.
+     * Once the user enters a valid directory name, they can either enter a file name or not
+     * Case 1: user enters a file name
+     * File chooser opens with the selected file in the open field.
+     * Upon hitting approve the code checks of the duplicate of file selected already exists in Jfile.
+     * Yes duplicate exists: error pops up saying “duplicate file exits”
+     * Duplicate in the Jlist gets highlighted
+     * Case 2: user does not enter a file name
+     * File chooser opens with selected directory. User chooses a file from the directory.
+     * Upon hitting open the code checks for duplicate and does the same as previously mentioned
+     */
+
+            String fileNm = addFileInput.getText();
+            String dirNm = addFileInput.getText();
+            String directoryName = dirNm.replace("\\", "\\\\");
+            File directory = new File(directoryName);
+                /**
+                 * Checks if directory does not exists or the directory text field is empty
+                 */
+                if(dirNm.isEmpty() || !directory.exists())
+                {
+                    JOptionPane.showMessageDialog(null, "Please enter valid directory name");
+                }
+                /**
+                 * In case directory entered exists user can either
+                 * 1. Enter a file name
+                 * 2. Not enter a file name
+                 *
+                 */
+                else {
+                    String absolutePath = dirNm + "\\\\" + fileNm;
+                    /**
+                     * Case 1: user does not enter file name
+                     *
+                     */
+                    if (fileNm.isEmpty()) {
+                        fc.setCurrentDirectory(new File(directoryName));
+                        System.out.println(directoryName);
+                        int returnVal = fc.showOpenDialog(pane);
+                        if (returnVal == JFileChooser.APPROVE_OPTION) {
+                            if (dm.isEmpty()) {
+                                dm.addElement(fc.getSelectedFile().getAbsolutePath());
+                                inputFiles.setModel(dm);
+                            } else {
+                                System.out.println(dm.contains(fc.getSelectedFile().getAbsolutePath()));
+                                if (dm.contains(fc.getSelectedFile().getAbsolutePath())) {
+                                    JOptionPane.showMessageDialog(null, "Duplicate exists");
+                                    inputFiles.setSelectedIndex(dm.indexOf(fc.getSelectedFile().getAbsolutePath()));
+                                } else {
+                                    dm.addElement(fc.getSelectedFile().getAbsolutePath());
+                                    inputFiles.setModel(dm);
+                                }
+                            }
+
+                        }
+                    }
+                    /**
+                     * Case 2: user enters file name
+                     */
+                    else {
+                        fc.setSelectedFile(new File(absolutePath));
+                        int returnVal1 = fc.showOpenDialog(pane);
+                        if (returnVal1 == JFileChooser.APPROVE_OPTION) {
+                            if (dm.isEmpty()) {
+                                dm.addElement(fc.getSelectedFile().getAbsolutePath());
+                                inputFiles.setModel(dm);
+                            } else {
+                                System.out.println(dm.contains(fc.getSelectedFile().getAbsolutePath()));
+                                if (dm.contains(fc.getSelectedFile().getAbsolutePath())) {
+                                    JOptionPane.showMessageDialog(null, "Duplicate exists");
+                                    inputFiles.setSelectedIndex(dm.indexOf(fc.getSelectedFile().getAbsolutePath()));
+                                } else {
+                                    dm.addElement(fc.getSelectedFile().getAbsolutePath());
+                                    inputFiles.setModel(dm);
+                                }
+                            }
+                        }
+                    }
+                }
+     }
+
+
     private void addFiles() {
-        String front = "*[";
-        String fileNm = addFileInput.getText();
-        String dirNm = addFileInput.getParent().toString();
-        String back = "]*";
-        front += fileNm;
-        front += back;
-        File file = new File(addFileInput.getText());
+        String filePath = "";
+        filePath = addFileInput.getText();
+        File file = new File(filePath);
         /*PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + fileNm);
         System.out.println(matcher.toString());
         File file = new File(matcher.toString());
         Path pathNm = getPaths(matcher);
         System.out.println(pathNm.toString());*/
-
-
-
-        int returnVal;
-
         /**
-         * Checks if directory does not exists or the directory text field is empty
+         * Validates that the Default Model contains the selection.
          */
-        if (dirNm.isEmpty() || !file.exists()) {
-            JOptionPane.showMessageDialog(null, "Please enter valid directory name");
-        }
-        /**
-         * In case directory entered exists user can either
-         * 1. Enter a file name
-         * 2. Not enter a file name
-         *
-         */
-        else {
-
-            if (fileNm.isEmpty()) {
-                fc.setCurrentDirectory(new File(fileNm));
-                System.out.println(fileNm);
-                returnVal = fc.showOpenDialog(pane);
+        if(!dm.contains(file.getAbsolutePath())) {
+            if (!file.exists()) {
+                JOptionPane.showMessageDialog(null, "Please enter valid directory name");
             } else {
-                fc.setSelectedFile(new File(fileNm));
-                returnVal = fc.showOpenDialog(pane);
-            }
-
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                if (dm.isEmpty()) {
-                    dm.addElement(fc.getSelectedFile().getAbsolutePath());
+                if (dm.contains(file.getAbsolutePath())) {
+                    JOptionPane.showMessageDialog(null, "Duplicate exists");
+                    inputFiles.setSelectedIndex(dm.indexOf(file.getAbsolutePath()));
                 } else {
-                    System.out.println(dm.contains(fc.getSelectedFile().getAbsolutePath()));
-                    if (dm.contains(fc.getSelectedFile().getAbsolutePath())) {
-                        JOptionPane.showMessageDialog(null, "Duplicate exists");
-                        inputFiles.setSelectedIndex(dm.indexOf(fc.getSelectedFile().getAbsolutePath()));
-                    } else {
-                        dm.addElement(fc.getSelectedFile().getAbsolutePath());
-                    }
+                    dm.addElement(file);
+                    selectedFiles.add(file);
+                    inputFiles.setModel(dm);
+                    filePanel.repaint();
                 }
             }
-
-            /*if(matcher.matches(pathNm))
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(null, "Duplicate exists");
+        }
+             /*if(matcher.matches(pathNm))
             {
                 System.out.println(pathNm);
             }
@@ -442,8 +525,8 @@ public class Frame extends JFrame {
             {
 
             }*/
-        }
     }
+
 
     public Path getPaths(PathMatcher matcher)
     {
@@ -454,6 +537,7 @@ public class Frame extends JFrame {
 
     private void submit() {
         outputGen = new OutputGenerator(selectedFiles);
+        System.out.println(selectedFiles);
         int filesCPPSize = outputGen.getFilesCPPSize();
         //JList.setListData(new String[0]);
 
@@ -478,9 +562,6 @@ public class Frame extends JFrame {
                 generatedFiles = new JList<>(outputFiles.toArray(new File[0]));
                 outputPanel.add(generatedFiles);
 
-                setDefaultCloseOperation(EXIT_ON_CLOSE);
-                pack();
-                setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(pane, "No C++ classes were selected.");
             }
@@ -492,28 +573,11 @@ public class Frame extends JFrame {
             JOptionPane.showMessageDialog(null, "ERROR: See Error Information Tab " +
                     "for details: \nfile already exists.");
             e1.printStackTrace();
-            //clicking OK redirects you to a tabbed pane labeled ERRORS
-            String errors = "Errors";
-            LOGGER.log(Level.FINE, "ERROR:  {0} file already exists.", errors);
-            //check if ERRORS tab exists. Create if it does not.
-            if (tabbedPane.indexOfTab(errors) == -1) {
-                tabbedPane.add(errors, new JScrollPane(failure));
-            }
+            LOGGER.log(Level.FINE, "ERROR:  {0} file already exists.");
+
 
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-
-            failure.setText("(" + sdf.format(new java.util.Date()) + ") Action failed.");
-
-            //populate the list of errors. make the text red?
-
-            failure.setEditable(false);
-            //set ERROR tab as currently selected tab
-            tabbedPane.getModel().setSelectedIndex(tabbedPane.indexOfTab(errors));
         }
-    }
-
-    public void search() {
-
     }
 
     private void preview() {
@@ -523,13 +587,10 @@ public class Frame extends JFrame {
          * if it does then the user sees the textArea on the Preview tab changed to
          * have the preview of the output file in it.
          */
+        int selectedIndex = generatedFiles.getSelectedIndex();
 
-        Object selectedFile = generatedFiles.getSelectedValue();
-        if (selectedFile != null) {
-            /**
-             * Selected file has its preview generated and a copy placed into
-             * the textArea on the Preview tab.
-             */
+        if (selectedIndex != -1) {
+
             try {
                 BufferedReader br = new BufferedReader(new FileReader(generatedFiles.getSelectedValue().toString()));
                 String sCurrentLine;
@@ -673,20 +734,17 @@ public class Frame extends JFrame {
     }
 
     private void remove() {
-        try {
-            DefaultListModel model = (DefaultListModel) inputFiles.getModel();
             int selectedIndex = inputFiles.getSelectedIndex();
 
             if (selectedIndex != -1) {
-                model.remove(selectedIndex);
-                selectedFiles.remove(selectedIndex);
-            }
+               dm.remove(selectedIndex);
 
-            tabbedPane.validate();
-            tabbedPane.repaint();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(pane, "No file selected to remove.");
-        }
+                tabbedPane.validate();
+                tabbedPane.repaint();
+            }
+            else {
+                JOptionPane.showMessageDialog(pane, "No file selected to remove.");
+            }
     }
 
     public static Logger getLogger() {
