@@ -187,6 +187,15 @@ public class Frame extends JFrame {
         JPanel fileInputPanel = new JPanel();
         JPanel imagePanel = new JPanel();
 
+        TitledBorder copyright = new TitledBorder("Powered By Rowan University SWE 2017");
+        copyright.setTitleJustification(TitledBorder.CENTER);
+        copyright.setTitlePosition(TitledBorder.TOP);
+
+        ImageIcon icon = new ImageIcon(this.getClass().getResource("ASRC%20Federal.jpg"));
+        JLabel img = new JLabel(icon);
+        imagePanel.setBorder(copyright);
+        imagePanel.setVisible(true);
+        imagePanel.add(img);
         addFileInput = new JTextField("Search for File");
 
         //Border Layout Display Panels
@@ -373,20 +382,6 @@ public class Frame extends JFrame {
             inputFiles.setModel(dm);
         } else {
             JOptionPane.showMessageDialog(pane, "Oops! Operation was cancelled.");
-        }
-    }
-
-    /**
-     * Returns an ImageIcon, or null if the path was invalid.
-     */
-    protected ImageIcon createImageIcon(String path, String description) {
-        java.net.URL imgURL = getClass().getResource(path);
-        System.out.println(getClass().getResource(path));
-        if (imgURL != null) {
-            return new ImageIcon(imgURL, description);
-        } else {
-            System.err.println("Couldn't find file: " + path);
-            return null;
         }
     }
 
