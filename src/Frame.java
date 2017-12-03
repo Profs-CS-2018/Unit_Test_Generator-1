@@ -187,7 +187,9 @@ public class Frame extends JFrame {
         JPanel fileInputPanel = new JPanel();
         JPanel imagePanel = new JPanel();
 
-        TitledBorder copyright = new TitledBorder("Powered By Rowan University SWE 2017");
+        char uniChar = '\u00A9';
+
+        TitledBorder copyright = new TitledBorder("Powered By Rowan University SWE, " + uniChar +  " 2017");
         copyright.setTitleJustification(TitledBorder.CENTER);
         copyright.setTitlePosition(TitledBorder.TOP);
 
@@ -249,8 +251,8 @@ public class Frame extends JFrame {
         submitBtnPartition.add(btmBtnPanel);
         cancelBtnPartition.add(btmBtnPanel);
         eastContainer.add(fileInputPanel, BorderLayout.SOUTH);
-        eastContainer.add(togglePanel, BorderLayout.NORTH);
-        eastContainer.add(imagePanel, BorderLayout.CENTER);
+        eastContainer.add(togglePanel, BorderLayout.CENTER);
+        eastContainer.add(imagePanel, BorderLayout.NORTH);
         southContainer.add(submitBtnPartition);
         southContainer.add(cancelBtnPartition);
 
@@ -263,9 +265,9 @@ public class Frame extends JFrame {
         previewPanel.setPreferredSize(new Dimension(100, 100));
         errorPanel.setPreferredSize(new Dimension(100, 100));
         outputPanel.setPreferredSize(new Dimension(100, 100));
-        togglePanel.setPreferredSize(new Dimension(500, 100));
+        togglePanel.setPreferredSize(new Dimension(100, 100));
         fileInputPanel.setPreferredSize(new Dimension(300, 100));
-        imagePanel.setPreferredSize(new Dimension(100, 100));
+        imagePanel.setPreferredSize(new Dimension(500, 300));
 
         preview.setEnabled(false);
 
@@ -313,21 +315,17 @@ public class Frame extends JFrame {
         EDIT.add(COPY);
         EDIT.add(PASTE);
 
-        JMenu VIEW = new JMenu("View");
-        menubar.add(VIEW);
+        JMenu PREFERENCES = new JMenu("Preferences");
+        menubar.add(PREFERENCES);
         JMenuItem PREVIEW = new JMenuItem("Preview");
         JMenuItem TEST_FILES = new JMenuItem("Test Files");
         JMenuItem TEST_FIXTURES = new JMenuItem("Test Fixtures");
         JMenuItem MAKEFILES = new JMenuItem("Makefiles");
-        VIEW.add(PREVIEW);
-        VIEW.add(TEST_FILES);
-        VIEW.add(TEST_FIXTURES);
-        VIEW.add(MAKEFILES);
+        PREFERENCES.add(PREVIEW);
+        PREFERENCES.add(TEST_FILES);
+        PREFERENCES.add(TEST_FIXTURES);
+        PREFERENCES.add(MAKEFILES);
 
-        JMenu PREFERENCES = new JMenu("Preferences");
-        menubar.add(PREFERENCES);
-        JMenuItem STYLE = new JMenuItem("New Style");
-        PREFERENCES.add(STYLE);
     }
 
     private void browse() {
