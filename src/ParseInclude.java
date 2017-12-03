@@ -2,11 +2,14 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-public class ParseInclude extends Parser{
+/**
+ * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
+ */
+public class ParseInclude extends Parser {
 
     private static final Logger LOGGER = Logger.getLogger(ParseInclude.class.getName());
-    public ParseInclude(String path, ArrayList<File> files)
-    {
+
+    public ParseInclude(String path, ArrayList<File> files) {
         super(path);
     }
 

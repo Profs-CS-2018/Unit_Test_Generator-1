@@ -21,15 +21,16 @@ import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultEditorKit;
+import java.util.Iterator;
 
 /**
- * Frame Class extends JFrame
+ * The Frame class creates the Front End/GUI application for the Unit Test Generator Tool.
+ *
+ * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
+ * @version  2017-12-03
  */
 public class Frame extends JFrame {
 
-    /**
-     * Private Variable Declarations
-     */
     //Defined immutable variable for Logging
     private static final long serialVersionUID = 1L;
 
@@ -40,6 +41,8 @@ public class Frame extends JFrame {
     private JTabbedPane tabbedPane;
     private JPanel outputPanel;
     private JPanel filePanel;
+    private JPanel previewPanel;
+    private JPanel errorPanel;
 
     //File Choosers
     private JFileChooser fc;
@@ -69,9 +72,6 @@ public class Frame extends JFrame {
     private JList<?> inputFiles;
     private JList<File> generatedFiles;
 
-    //Progress bar
-    private JProgressBar progressBar;
-
     //File List for storing the files
     private ArrayList<File> selectedFiles;
 
@@ -79,18 +79,15 @@ public class Frame extends JFrame {
     private String path;
 
     //Declare the Output Generator Object
-    OutputGenerator outputGen;
+    private OutputGenerator outputGen;
 
     //Call upon the logging capabilities
     private static final Logger LOGGER = Logger.getLogger(Frame.class.getName());
 
     /**
-     * @param title
+     * @param title The title of the created GUI.
      */
     public Frame(String title) {
-        /**
-         * Name the Frame
-         */
         super(title);
         createFrame();
         createContent();
@@ -132,10 +129,6 @@ public class Frame extends JFrame {
 
         inputFiles = new JList<DefaultListModel>();
 
-        progressBar = new JProgressBar();
-
-        path = "";
-
         selectedFiles = new ArrayList<>();
 
         fixedLabel = new JLabel("Output Save Destination");
@@ -163,6 +156,7 @@ public class Frame extends JFrame {
         JButton browse = new JButton("Browse");
         JButton preview = new JButton("Preview");
         JButton remove = new JButton("Remove");
+        JButton reset = new JButton("Reset");
 
         JButton addFile = new JButton("Add File");
 
@@ -172,8 +166,8 @@ public class Frame extends JFrame {
         tabbedPane = new JTabbedPane();
 
         filePanel = new JPanel();
-        JPanel previewPanel = new JPanel();
-        JPanel errorPanel = new JPanel();
+        previewPanel = new JPanel();
+        errorPanel = new JPanel();
         outputPanel = new JPanel();
         JPanel sideBtnPanel = new JPanel();
         JPanel btmBtnPanel = new JPanel();
@@ -244,6 +238,7 @@ public class Frame extends JFrame {
         fileInputPanel.add(browse);
         fileInputPanel.add(remove);
         fileInputPanel.add(preview);
+        fileInputPanel.add(reset);
 
         btmBtnPanel.add(submit);
         btmBtnPanel.add(cancel);
@@ -278,6 +273,7 @@ public class Frame extends JFrame {
         submit.addActionListener(e -> submit(preview));
         remove.addActionListener(e -> remove());
         addFile.addActionListener(e -> addFiles());
+        reset.addActionListener(e -> reset());
 
         //Adding Check Box Listeners
         allFilesBox.addActionListener(e -> allFilesChecked());
@@ -331,22 +327,19 @@ public class Frame extends JFrame {
     private void browse() {
         JFileChooser fc = new JFileChooser();
         fc.setMultiSelectionEnabled(true);
-        /**
-         *The following line of code can be used to open the file search in a particular directory
-         * */
-        fc.setCurrentDirectory(new File(System.getProperty("user.name")));
-        /**
-         * The following code adds filter to the file extensions.
-         */
 
-        //for searching the files, filters which files appear in the box
+        //The following line of code can be used to open the file search in a particular directory
+        fc.setCurrentDirectory(new File(System.getProperty("user.name")));
+
+        // The following code adds file extension filters to the File Chooser.
+        // For searching the files, filters which files appear in the box
         fc.setFileFilter(new FileNameExtensionFilter("Text Files(.txt)", "txt"));
         fc.setFileFilter(new FileNameExtensionFilter("Java(.java)", "java"));
         fc.setFileFilter(new FileNameExtensionFilter("C++(.cpp)", "cpp"));
         fc.setFileFilter(new FileNameExtensionFilter("C++(.cpp, .h)", "cpp", "h"));
         fc.setFileFilter(new FileNameExtensionFilter("C++(.cpp, .h) and Text Files(.txt)", "cpp", "txt", "h"));
 
-        /**
+        /*
          * The following code checks if the action of clicking the button takes place
          * if it does then the user sees the textArea populated with the selected file
          * names
@@ -359,16 +352,16 @@ public class Frame extends JFrame {
                     dm.addElement(files[i].getAbsolutePath()); //add path into the JPanel
 
                     ArrayList<String> holder = new ArrayList<>();
-                    for(int x=0; x<files.length; x++){
+                    for (int x=0; x<files.length; x++) {
                         holder.add(files[x].getAbsolutePath());
                         //System.out.print(files[x].getAbsolutePath());
                     }
 
                     Set<String> set = new HashSet<String>(holder);
-                    if(set.size() < holder.size()) {
+                    if (set.size() < holder.size()) {
                         System.out.println("ERROR");
                     }
-                    else{
+                    else {
                         selectedFiles.add(files[i]);
                     }
                 }
@@ -384,12 +377,11 @@ public class Frame extends JFrame {
     }
 
     private void addFiles() {
-
-        String filePath = "";
+        String filePath;
         filePath = addFileInput.getText();
         File file = new File(filePath);
 
-        if(!dm.contains(file.getAbsolutePath())) {
+        if (!dm.contains(file.getAbsolutePath())) {
             if (!file.exists()) {
                 JOptionPane.showMessageDialog(null, "Please enter valid directory name");
             } else {
@@ -411,13 +403,11 @@ public class Frame extends JFrame {
     }
 
     private void search() {
-
-        String filePath = JOptionPane.showInputDialog(this,
-                "Search for a file", null);
+        String filePath = JOptionPane.showInputDialog(this, "Search for a file", null);
         filePath = addFileInput.getText();
         File file = new File(filePath);
 
-        if(!dm.contains(file.getAbsolutePath())) {
+        if (!dm.contains(file.getAbsolutePath())) {
             if (!file.exists()) {
                 JOptionPane.showMessageDialog(null, "Please enter valid directory name");
             } else {
@@ -439,34 +429,42 @@ public class Frame extends JFrame {
     }
 
     private void submit(JButton preview) {
-        outputGen = new OutputGenerator(selectedFiles);
-        System.out.println(selectedFiles);
-        int filesCPPSize = outputGen.getFilesCPPSize();
-        //JList.setListData(new String[0]);
-
         try {
-            if (selectedFiles.size() > 0 && filesCPPSize > 0) {
-                if (makeFileBox.isSelected()) {
-                    outputGen.writeMakeFile();
-                    Logs.userLog("makefile");
+            if (selectedFiles.size() > 0) {
+                outputGen = new OutputGenerator(selectedFiles);
+                System.out.println(selectedFiles);
+                int filesCPPSize = outputGen.getFilesCPPSize();
+
+                if (filesCPPSize > 0) {
+                    if (makeFileBox.isSelected()) {
+                        outputGen.writeMakeFile();
+                        Logs.userLog("makefile");
+                    }
+
+                    if (testFixtureBox.isSelected()) {
+                        outputGen.writeTestFixtures();
+                        Logs.userLog("testfixture");
+                    }
+
+                    if (unitTestBox.isSelected()) {
+                        outputGen.writeUnitTests();
+                        Logs.userLog("Unit Test File");
+                    }
+
+                    ArrayList<File> outputFiles = outputGen.getOutputFiles();
+                    generatedFiles = new JList<>(outputFiles.toArray(new File[0]));
+                    outputPanel.add(new JScrollPane(generatedFiles));
+
+                    outputPanel.repaint();
+                    outputPanel.revalidate();
+
+                    preview.setEnabled(true);
+                    outputGen.moveOutputFiles();
+                } else {
+                    JOptionPane.showMessageDialog(pane, "No C++ classes (.cpp files) have been selected.");
                 }
-
-                if (testFixtureBox.isSelected()) {
-                    outputGen.writeTestFixtures();
-                    Logs.userLog("testfixture");
-                }
-
-                if (unitTestBox.isSelected()) {
-                    outputGen.writeUnitTests();
-                    Logs.userLog("Unit Test File");
-                }
-
-                ArrayList<File> outputFiles = outputGen.getOutputFiles();
-                generatedFiles = new JList<>(outputFiles.toArray(new File[0]));
-                outputPanel.add(new JScrollPane(generatedFiles));
-
             } else {
-                JOptionPane.showMessageDialog(pane, "No C++ classes were selected.");
+                JOptionPane.showMessageDialog(pane, "No files have been selected.");
             }
 
             if (!makeFileBox.isSelected() && !testFixtureBox.isSelected() && !unitTestBox.isSelected()) {
@@ -478,30 +476,26 @@ public class Frame extends JFrame {
             e1.printStackTrace();
             LOGGER.log(Level.FINE, "ERROR:  {0} file already exists.");
 
-
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         }
-        preview.setEnabled(true);
-        outputGen.moveOutputFiles();
     }
 
     private void preview() {
 
-        /**
+        /*
          * The following code checks if the action of clicking the button takes place
          * if it does then the user sees the textArea on the Preview tab changed to
          * have the preview of the output file in it.
          */
-        if(generatedFiles != null) {
+        if (generatedFiles != null) {
             int selectedIndex = generatedFiles.getSelectedIndex();
 
             if (selectedIndex != -1) {
-
                 try {
                     BufferedReader br = new BufferedReader(new FileReader(generatedFiles.getSelectedValue().toString()));
                     String sCurrentLine;
                     String previewStr = "Preview";
-                    /**
+                    /*
                      * trying to create a new Panel here.
                      */
                     JScrollPane scrollPane = new JScrollPane();
@@ -509,7 +503,7 @@ public class Frame extends JFrame {
                     fileContent.setLayout(new BorderLayout());
                     JTextArea textArea = new JTextArea();
 
-                    /**
+                    /*
                      * Lines below again for testing
                      */
                     if (tabbedPane.indexOfTab(previewStr) == 1) {
@@ -530,27 +524,31 @@ public class Frame extends JFrame {
             } else {
                 JOptionPane.showMessageDialog(pane, "No files selected for preview.");
             }
-        }else
-        {
+        } else {
             JOptionPane.showMessageDialog(pane, "No files generated to preview.");
         }
-
     }
 
-
+    /**
+     * This method closes the Java application.
+     */
     private void close() {
-            dispose();
+        dispose();
     }
 
+    /**
+     * This method adds the functionality for when the user either selects or deselects the All Files
+     * checkbox, each of the other three checkboxes are selected or deselected accordingly.
+     */
     private void allFilesChecked() {
-        // Turn on all checkboxes if Select All is on
+        // Turn on all checkboxes if All Files is on
         if (allFilesBox.isSelected()) {
             makeFileBox.setSelected(true);
             testFixtureBox.setSelected(true);
             unitTestBox.setSelected(true);
         }
 
-        // If Select All is turned off, turn off all other checkboxes
+        // If All Files is turned off, turn off all other checkboxes
         else {
             makeFileBox.setSelected(false);
             testFixtureBox.setSelected(false);
@@ -558,35 +556,55 @@ public class Frame extends JFrame {
         }
     }
 
+    /**
+     * This method will automatically turn on the All Files checkbox when all of the other three have been turned on.
+     */
     private void otherFilesSelected() {
-        // if all boxes are selected automatically select the "All Files" box
         boolean makeFile = makeFileBox.isSelected();
         boolean testFixture = testFixtureBox.isSelected();
         boolean unitTest = unitTestBox.isSelected();
-        if (makeFile && testFixture && unitTest)
-        {
+        if (makeFile && testFixture && unitTest) {
             allFilesBox.setSelected(true);
         }
     }
 
+    /**
+     * This method checks to see if the 'Make File' checkbox is or isn't selected.
+     * In the case that it is not selected (has been un-checked by the user), this method deselects
+     * the 'All Files' checkbox correspondingly.
+     */
     private void makeFilesChecked() {
         if (!makeFileBox.isSelected()) {
             allFilesBox.setSelected(false);
         }
     }
 
+    /**
+     * This method checks to see if the 'Test Fixture' checkbox is or isn't selected.
+     * In the case that it is not selected (has been un-checked by the user), this method deselects
+     * the 'All Files' checkbox correspondingly.
+     */
     private void testFixtureFilesChecked() {
         if (!testFixtureBox.isSelected()) {
             allFilesBox.setSelected(false);
         }
     }
 
+    /**
+     * This method checks to see if the 'Unit Test' checkbox is or isn't selected.
+     * In the case that it is not selected (has been un-checked by the user), this method deselects
+     * the 'All Files' checkbox correspondingly.
+     */
     private void unitTestFilesChecked() {
         if (!unitTestBox.isSelected()) {
             allFilesBox.setSelected(false);
         }
     }
 
+    /**
+     * This method removes a user-selected file from both the JList of files selected from the File Chooser,
+     * and the ArrayList of files (C++ classes) to eventually be submitted for test suite generation.
+     */
     private void remove() {
         int selectedIndex = inputFiles.getSelectedIndex();
 
@@ -602,7 +620,48 @@ public class Frame extends JFrame {
         }
     }
 
+    /**
+     * This method is responsible for resetting the GUI and all accompanying data structures, so that the user can
+     * re-run the application without having to close entirely and restart.
+     */
+    private void reset() {
+        if (inputFiles != null) {
+            dm.removeAllElements();
+            inputFiles.removeAll();
+            resetFilesList();
+        }
+
+        if (generatedFiles != null) {
+            generatedFiles.removeAll();
+            outputPanel.removeAll();
+            outputGen.resetOutputFilesList();
+        }
+
+        previewPanel.removeAll();
+        errorPanel.removeAll();
+
+        outputGen.resetFilesList();
+        outputGen.resetFilesCPPList();
+        outputGen.resetFilesHList();
+
+        repaint();
+        revalidate();
+    }
+
     public static Logger getLogger() {
         return LOGGER;
+    }
+
+    /**
+     * Clears the selectedFiles collection of File objects; used during reset().
+     * Done via iteration to avoid ConcurrentModificationException.
+     */
+    private void resetFilesList() {
+        Iterator<File> iterator = selectedFiles.iterator();
+
+        while (iterator.hasNext()) {
+            File file = iterator.next();
+            iterator.remove();
+        }
     }
 }

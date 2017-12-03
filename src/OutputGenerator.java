@@ -1,17 +1,26 @@
 import java.io.*;
 import java.util.ArrayList;
 import java.util.logging.Logger;
+import java.util.Iterator;
 
+/**
+ *
+ * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
+ */
 public class OutputGenerator {
 
-    private ArrayList<File> outputFiles;
+    private ArrayList<File> files;
     private ArrayList<File> filesCPP;
     private ArrayList<File> filesH;
-    private ArrayList<File> files;
+    private ArrayList<File> outputFiles;
     private ParseCPP parserCPP;
     private ParseInclude parserInclude;
     private static final Logger LOGGER = Logger.getLogger(OutputGenerator.class.getName());
 
+    /**
+     *
+     * @param files An ArrayList collection of File objects, initialized by the user via the GUI and File Chooser.
+     */
     public OutputGenerator(ArrayList<File> files) {
         this.files = files;
         filesCPP = new ArrayList<>();
@@ -22,10 +31,16 @@ public class OutputGenerator {
         initializeFileLists();
     }
 
+    /**
+     * The writeMakeFile method is responsible for generating a makefile which corresponds with C++ classes
+     * selected by the user within the GUI.
+     * This method will use the parse method from the ParseInclude class to search for dependencies via '#include'
+     * statements and dynamically write them into the makefile.
+     */
     public void writeMakeFile() {
         ArrayList<String> objectList = new ArrayList<>();
         File makefile = new File(files.get(0).getParent()+ "\\" + "makefile");
-        //file = new File(getDirectoryName());
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(makefile))) {
             writer.write("all: executable");
             writer.write("\n\nOBJS =");
@@ -65,15 +80,16 @@ public class OutputGenerator {
         }
     }
 
+    /**
+     * The writeTestFixtures method is responsible for generating test fixtures which correspond with C++ classes
+     * selected by the user within the GUI. One text fixture is generated for each selected C++ class.
+     * This method will use the parse method from the ParseInclude class to search for dependencies via '#include'
+     * statements and dynamically write them into each test fixture.
+     */
     public void writeTestFixtures() {
         for (File input : filesCPP) {
             ArrayList<String> dependencies = parserInclude.parse(input);
             String className = input.getName().split("\\.")[0];
-
-            /**
-             * TODO: getPath() requires dynamic capability in the case where two files
-             * are selected from multiple locations.
-             */
             File testFixture = new File(files.get(0).getParent()+ "\\" + className + "Fixture.h");
 
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(testFixture))) {
@@ -102,7 +118,6 @@ public class OutputGenerator {
                 writer.close();
 
                 outputFiles.add(testFixture);
-                //testFixtures.add(file);
             } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println("Error generating test fixture for " + className);
@@ -110,6 +125,12 @@ public class OutputGenerator {
         }
     }
 
+    /**
+     * The writeUnitTests method is responsible for generating Unit Test suites which correspond with C++ classes
+     * selected by the user within the GUI. One Unit Test file is generated for each selected C++ class.
+     * This method will use the parse method from the parserCPP class to, for each selected C++ class, gather the
+     * names of each method and dynamically write them into the Unit Test file.
+     */
     public void writeUnitTests() {
         for (File input : filesCPP) {
             String className = input.getName().split("\\.")[0];
@@ -148,11 +169,17 @@ public class OutputGenerator {
         return directoryName;
     }
 
+    /**
+     * This method returns the collection of each of test suite files that were generated, per corresponding C++
+     * class. The size of the collection varies based off how many input files were selected and which parameters
+     * were chosen.
+     * @return outputFiles: An ArrayList collection of any and all test suite files that were generated.
+     */
     public ArrayList getOutputFiles() {
         return outputFiles;
     }
 
-    public void initializeFileLists() {
+    private void initializeFileLists() {
         for (File file : files) {
             String fileName = file.getName();
             String fileExtension = getFileExtension(fileName);
@@ -181,7 +208,68 @@ public class OutputGenerator {
         return outputFiles;
     }
 
+    /**
+     * This method is used for checking whether or not files selected and submitted by the user for test
+     * suite generation include .cpp files (classes).
+     * @return The size of the filesCPP collection of File objects.
+     */
     public int getFilesCPPSize() {
         return filesCPP.size();
+    }
+
+    public void removeFile(int index) {
+        filesCPP.remove(index);
+    }
+
+    /**
+     * Clears the files collection of File objects.
+     * Done via iteration to avoid ConcurrentModificationException.
+     */
+    public void resetFilesList() {
+        Iterator<File> iterator = files.iterator();
+
+        while (iterator.hasNext()) {
+            File file = iterator.next();
+            iterator.remove();
+        }
+    }
+
+    /**
+     * Clears the filesCPP collection of File objects.
+     * Done via iteration to avoid ConcurrentModificationException.
+     */
+    public void resetFilesCPPList() {
+        Iterator<File> iterator = filesCPP.iterator();
+
+        while (iterator.hasNext()) {
+            File file = iterator.next();
+            iterator.remove();
+        }
+    }
+
+    /**
+     * Clears the filesH collection of File objects.
+     * Done via iteration to avoid ConcurrentModificationException.
+     */
+    public void resetFilesHList() {
+        Iterator<File> iterator = filesH.iterator();
+
+        while (iterator.hasNext()) {
+            File file = iterator.next();
+            iterator.remove();
+        }
+    }
+
+    /**
+     * Clears the outputFiles collection of File objects.
+     * Done via iteration to avoid ConcurrentModificationException.
+     */
+    public void resetOutputFilesList() {
+        Iterator<File> iterator = outputFiles.iterator();
+
+        while (iterator.hasNext()) {
+            File file = iterator.next();
+            iterator.remove();
+        }
     }
 }

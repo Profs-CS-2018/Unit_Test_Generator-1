@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+/**
+ * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
+ */
 public class Parser implements ParserI {
 
     //private ArrayList<String> lineList;
@@ -17,14 +20,11 @@ public class Parser implements ParserI {
 
     private static final Logger LOGGER = Logger.getLogger(Parser.class.getName());
 
-    public Parser(String path){
+    public Parser(String path) {
         this.path = path;
     }
 
     public void parse() {
 
     }
-
-
-
 }

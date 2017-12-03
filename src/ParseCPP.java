@@ -2,6 +2,9 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+/**
+ * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
+ */
 public class ParseCPP extends Parser{
 
     private static final Logger LOGGER = Logger.getLogger(ParseCPP.class.getName());

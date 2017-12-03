@@ -6,6 +6,9 @@ import java.util.logging.Logger;
 import java.util.Scanner;
 import java.io.*;
 
+/**
+ * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
+ */
 public class Logs {
 
     private final static Logger userLogr = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -27,49 +30,44 @@ public class Logs {
         }
     }
 
-    public static void setupUserLogger(){
-        try{
+    public static void setupUserLogger() {
+        try {
             FileHandler userFH = new FileHandler("User.log", true);
             userFH.setLevel(Level.INFO);
             userFH.setFormatter(new SimpleFormatter());
             userLogr.addHandler(userFH);
-        }
-        catch(IOException e){
+        } catch (IOException e) {
             userLogr.log(Level.SEVERE, "ERROR: User Logger setup not working \n");
         }
     }
 
-    public static void userLog(String file){
-        try{
-            if(initialUserLog){
+    public static void userLog(String file) {
+        try {
+            if (initialUserLog) {
                 setupUserLogger();
                 setupDevLogger();
                 initialUserLog = false;
+            } else {
+                userLogr.info("Generating " + file + "(s)... \n");
             }
-            else{
-                userLogr.info("Generating "+file+"(s)... \n");
-            }
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             userLogr.log(Level.SEVERE, "ERROR: File not working");
         }
     }
 
-    public static void generatedFiles(String file){
-        userLogr.info("File generated: "+file+"\n");
+    public static void generatedFiles(String file) {
+        userLogr.info("File generated: " + file + "\n");
     }
 
-    public static void devLog(String file){
-        try{
-            if(initialDevLog){
+    public static void devLog(String file) {
+        try {
+            if (initialDevLog) {
                 setupDevLogger();
                 initialDevLog = false;
+            } else {
+                devLogr.info("Generating " + file + "(s)... \n");
             }
-            else{
-                devLogr.info("Generating "+file+"(s)... \n");
-            }
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             devLogr.log(Level.SEVERE, "ERROR: File not working \n");
         }
     }
