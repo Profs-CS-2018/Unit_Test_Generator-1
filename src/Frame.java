@@ -193,11 +193,11 @@ public class Frame extends JFrame {
         copyright.setTitleJustification(TitledBorder.CENTER);
         copyright.setTitlePosition(TitledBorder.TOP);
 
-        ImageIcon icon = new ImageIcon(this.getClass().getResource("ASRC%20Federal.jpg"));
-        JLabel img = new JLabel(icon);
+        //ImageIcon icon = new ImageIcon(this.getClass().getResource("ASRC%20Federal.jpg"));
+        //JLabel img = new JLabel(icon);
         imagePanel.setBorder(copyright);
         imagePanel.setVisible(true);
-        imagePanel.add(img);
+        //imagePanel.add(img);
         addFileInput = new JTextField("Search for File");
 
         //Border Layout Display Panels
@@ -361,7 +361,7 @@ public class Frame extends JFrame {
                     ArrayList<String> holder = new ArrayList<>();
                     for(int x=0; x<files.length; x++){
                         holder.add(files[x].getAbsolutePath());
-                        System.out.print(files[x].getAbsolutePath());
+                        //System.out.print(files[x].getAbsolutePath());
                     }
 
                     Set<String> set = new HashSet<String>(holder);
@@ -592,6 +592,7 @@ public class Frame extends JFrame {
 
         if (selectedIndex != -1) {
             dm.remove(selectedIndex);
+            selectedFiles.remove(selectedIndex);
 
             tabbedPane.validate();
             tabbedPane.repaint();

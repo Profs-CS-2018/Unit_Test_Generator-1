@@ -21,8 +21,7 @@ public class Parser implements ParserI {
         this.path = path;
     }
 
-    public void parse()
-    {
+    public void parse() {
 
     }
 
