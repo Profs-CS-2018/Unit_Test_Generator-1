@@ -84,6 +84,9 @@ public class Frame extends JFrame {
     //Call upon the logging capabilities
     private static final Logger LOGGER = Logger.getLogger(Frame.class.getName());
 
+    private String dirName;
+    private String fileName;
+
     /**
      * @param title The title of the created GUI.
      */
@@ -434,6 +437,10 @@ public class Frame extends JFrame {
                 int filesCPPSize = outputGen.getFilesCPPSize();
 
                 if (filesCPPSize > 0) {
+
+                    //This bypasses the Log bug
+                    Logs.userLog("0");
+
                     if (makeFileBox.isSelected()) {
                         outputGen.writeMakeFile();
                         Logs.userLog("makefile");
@@ -458,6 +465,22 @@ public class Frame extends JFrame {
 
                     preview.setEnabled(true);
                     //outputGen.moveOutputFiles();
+
+                    String longDir="";
+                    int i=0;
+                    ArrayList<String> fileNames = new ArrayList<>();
+                    for(File file : outputFiles){
+                        //System.out.println(file);
+                        //ystem.out.println("Abs " + file.getAbsolutePath());
+                        longDir = file.getAbsolutePath();
+                        String[] parts = longDir.split("/");
+                        int size = parts.length;
+                        //System.out.println(parts[size-1]);
+                        fileNames.add(parts[size-1]);
+                    }
+
+                    Logs.generatedFiles(fileNames);
+
                 } else {
                     JOptionPane.showMessageDialog(pane, "No C++ classes (.cpp files) have been selected.");
                 }

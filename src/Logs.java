@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.LogManager;
 import java.util.logging.*;
 import java.util.logging.Logger;
@@ -15,6 +16,9 @@ public class Logs {
     private final static Logger devLogr = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     static boolean initialUserLog = true;
     static boolean initialDevLog = true;
+    static String dirName;
+    static String longDir;
+    static String fileName;
 
     public Logs() {
 
@@ -47,7 +51,10 @@ public class Logs {
                 setupUserLogger();
                 setupDevLogger();
                 initialUserLog = false;
-            } else {
+            } else if(file == "0") {
+                //
+            }
+            else{
                 userLogr.info("Generating " + file + "(s)... \n");
             }
         } catch (Exception e) {
@@ -55,8 +62,10 @@ public class Logs {
         }
     }
 
-    public static void generatedFiles(String file) {
-        userLogr.info("File generated: " + file + "\n");
+    public static void generatedFiles(ArrayList<String> fileNames) {
+        for(String file : fileNames) {
+            userLogr.info("File generated: " + file+ "\n");
+        }
     }
 
     public static void devLog(String file) {
