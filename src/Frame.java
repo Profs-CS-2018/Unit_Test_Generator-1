@@ -458,6 +458,8 @@ public class Frame extends JFrame {
 
                     ArrayList<File> outputFiles = outputGen.getOutputFiles();
                     generatedFiles = new JList<>(outputFiles.toArray(new File[0]));
+
+                    outputPanel.removeAll();
                     outputPanel.add(new JScrollPane(generatedFiles));
 
                     outputPanel.repaint();
