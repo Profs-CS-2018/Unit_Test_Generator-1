@@ -158,7 +158,7 @@ public class Frame extends JFrame {
         JButton remove = new JButton("Remove");
         JButton reset = new JButton("Reset");
 
-        JButton addFile = new JButton("Add File"
+        JButton addFile = new JButton("Add File");
 
         JButton submit = new JButton("Submit");
         JButton cancel = new JButton("Close");
