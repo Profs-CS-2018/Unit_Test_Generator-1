@@ -39,7 +39,7 @@ public class OutputGenerator {
      */
     public void writeMakeFile() {
         ArrayList<String> objectList = new ArrayList<>();
-        File makefile = new File(files.get(0).getParent()+ "\\" + "makefile");
+        File makefile = new File(files.get(0).getParent()+ "/" + "makefile");
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(makefile))) {
             writer.write("all: executable");
@@ -90,7 +90,7 @@ public class OutputGenerator {
         for (File input : filesCPP) {
             ArrayList<String> dependencies = parserInclude.parse(input);
             String className = input.getName().split("\\.")[0];
-            File testFixture = new File(files.get(0).getParent()+ "\\" + className + "Fixture.h");
+            File testFixture = new File(files.get(0).getParent()+ "/" + className + "Fixture.h");
 
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(testFixture))) {
                 writer.write("#include \"TestHarness.h\"\n");
@@ -136,7 +136,7 @@ public class OutputGenerator {
             String className = input.getName().split("\\.")[0];
             String fixtureName = className + "Fixture";
 
-            File unitTestFile = new File(files.get(0).getParent() + "\\" + className + "Test.cpp");
+            File unitTestFile = new File(files.get(0).getParent() + "/" + className + "Test.cpp");
 
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(unitTestFile))) {
                 ArrayList<String> methodList = parserCPP.parse(input);

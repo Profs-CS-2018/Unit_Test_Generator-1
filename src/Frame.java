@@ -321,7 +321,6 @@ public class Frame extends JFrame {
         PREFERENCES.add(TEST_FILES);
         PREFERENCES.add(TEST_FIXTURES);
         PREFERENCES.add(MAKEFILES);
-
     }
 
     private void browse() {
@@ -357,20 +356,10 @@ public class Frame extends JFrame {
                                 JOptionPane.YES_NO_OPTION);
                         if (reply == JOptionPane.YES_OPTION) {
                             dm.addElement(files[i].getAbsolutePath());
+                            selectedFiles.add(files[i]);
                         }
                     } else {
                         dm.addElement(files[i].getAbsolutePath());
-                    }
-
-                    ArrayList<String> holder = new ArrayList<>();
-                    for (int x = 0; x < files.length; x++) {
-                        holder.add(files[x].getAbsolutePath());
-                    }
-
-                    Set<String> set = new HashSet<String>(holder);
-                    if (set.size() < holder.size()) {
-                        System.out.println("ERROR");
-                    } else {
                         selectedFiles.add(files[i]);
                     }
                 }
