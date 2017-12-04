@@ -158,7 +158,7 @@ public class Frame extends JFrame {
         JButton remove = new JButton("Remove");
         JButton reset = new JButton("Reset");
 
-        JButton addFile = new JButton("Add File");
+        JButton addFile = new JButton("Add File"
 
         JButton submit = new JButton("Submit");
         JButton cancel = new JButton("Close");
@@ -191,7 +191,7 @@ public class Frame extends JFrame {
         JLabel img = new JLabel(icon);
         imagePanel.setBorder(copyright);
         imagePanel.setVisible(true);
-        //imagePanel.add(img);
+        imagePanel.add(img);
         addFileInput = new JTextField("Search for File");
 
         //Border Layout Display Panels
