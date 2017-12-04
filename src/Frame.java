@@ -349,19 +349,28 @@ public class Frame extends JFrame {
             File[] files = fc.getSelectedFiles(); // the selected files from browse
             if (files.length >= 1) {
                 for (int i = 0; i < files.length; i++) {
-                    dm.addElement(files[i].getAbsolutePath()); //add path into the JPanel
+                    String curr = files[i].getAbsolutePath();
+
+                    if (dm.contains(curr)) {
+                        int reply = JOptionPane.showConfirmDialog(null, "Duplicate found: " + files[i].getName() +
+                                        "\nWould you like to add this file anyway?", "Warning: Duplicate(s) exist.",
+                                JOptionPane.YES_NO_OPTION);
+                        if (reply == JOptionPane.YES_OPTION) {
+                            dm.addElement(files[i].getAbsolutePath());
+                        }
+                    } else {
+                        dm.addElement(files[i].getAbsolutePath());
+                    }
 
                     ArrayList<String> holder = new ArrayList<>();
-                    for (int x=0; x<files.length; x++) {
+                    for (int x = 0; x < files.length; x++) {
                         holder.add(files[x].getAbsolutePath());
-                        //System.out.print(files[x].getAbsolutePath());
                     }
 
                     Set<String> set = new HashSet<String>(holder);
                     if (set.size() < holder.size()) {
                         System.out.println("ERROR");
-                    }
-                    else {
+                    } else {
                         selectedFiles.add(files[i]);
                     }
                 }
@@ -459,7 +468,7 @@ public class Frame extends JFrame {
                     outputPanel.revalidate();
 
                     preview.setEnabled(true);
-                    outputGen.moveOutputFiles();
+                    //outputGen.moveOutputFiles();
                 } else {
                     JOptionPane.showMessageDialog(pane, "No C++ classes (.cpp files) have been selected.");
                 }
@@ -634,15 +643,15 @@ public class Frame extends JFrame {
         if (generatedFiles != null) {
             generatedFiles.removeAll();
             outputPanel.removeAll();
+            outputGen.resetFilesList();
+            outputGen.resetFilesCPPList();
+            outputGen.resetFilesHList();
             outputGen.resetOutputFilesList();
         }
 
         previewPanel.removeAll();
         errorPanel.removeAll();
 
-        outputGen.resetFilesList();
-        outputGen.resetFilesCPPList();
-        outputGen.resetFilesHList();
 
         repaint();
         revalidate();
