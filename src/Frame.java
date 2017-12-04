@@ -187,8 +187,8 @@ public class Frame extends JFrame {
         copyright.setTitleJustification(TitledBorder.CENTER);
         copyright.setTitlePosition(TitledBorder.TOP);
 
-        //ImageIcon icon = new ImageIcon(this.getClass().getResource("ASRC%20Federal.jpg"));
-        //JLabel img = new JLabel(icon);
+        ImageIcon icon = new ImageIcon(this.getClass().getResource("ASRC%20Federal.jpg"));
+        JLabel img = new JLabel(icon);
         imagePanel.setBorder(copyright);
         imagePanel.setVisible(true);
         //imagePanel.add(img);
