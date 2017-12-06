@@ -80,4 +80,8 @@ public class Logs {
             devLogr.log(Level.SEVERE, "ERROR: File not working \n");
         }
     }
+
+    public static void moveLogsToFolder(){
+        //
+    }
 }

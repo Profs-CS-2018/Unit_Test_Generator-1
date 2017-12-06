@@ -86,6 +86,7 @@ public class Frame extends JFrame {
 
     private String dirName;
     private String fileName;
+    private boolean initial;
 
     /**
      * @param title The title of the created GUI.
@@ -477,9 +478,12 @@ public class Frame extends JFrame {
                         fileNames.add(parts[size-1]);
                     }
 
-
-
                     Logs.generatedFiles(fileNames);
+
+                    if(initial) {
+                        createUserDevLogFolder();
+                        Logs.moveLogsToFolder();
+                    }
 
                 } else {
                     JOptionPane.showMessageDialog(pane, "No C++ classes (.cpp files) have been selected.");
@@ -502,20 +506,9 @@ public class Frame extends JFrame {
     }
 
     private void createUserDevLogFolder(){
-        //new File("/path/to/folder").mkdir();
-        //String longDir="";
-        //int i=0;
-        //ArrayList<String> folderDir = new ArrayList<>();
-        //File file = outputFiles.get(1);
-        //longDir = file.getAbsolutePath();
-        //String[] parts = longDir.split("/");
-        //int size = parts.length;
-        //for(int count=0; count<size-1; count++){
-        //    folderDir.add(parts[count]);
-        //}
-        System.out.println(System.getProperty("user.dir"));
-        //String[] parts = System.getProperty("user.dir").split("/");
-        new File(System.getProperty("user.dir")).mkdir();
+        //System.out.println(System.getProperty("user.dir"));
+        new File(System.getProperty("user.dir")+"/User&DevLogs").mkdir();
+        initial = false;
     }
 
     private void preview() {
@@ -571,7 +564,6 @@ public class Frame extends JFrame {
      * This method closes the Java application.
      */
     private void close() {
-        createUserDevLogFolder();
         dispose();
     }
 
