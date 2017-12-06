@@ -86,7 +86,8 @@ public class Frame extends JFrame {
 
     private String dirName;
     private String fileName;
-    private boolean initial;
+    private boolean initialFolder=true;
+    private boolean initialMove=true;
 
     /**
      * @param title The title of the created GUI.
@@ -433,6 +434,9 @@ public class Frame extends JFrame {
     private void submit(JButton preview) {
         try {
             if (selectedFiles.size() > 0) {
+                if (initialFolder) {
+                    createUserDevLogFolder();
+                }
                 outputGen = new OutputGenerator(selectedFiles);
                 System.out.println(selectedFiles);
                 int filesCPPSize = outputGen.getFilesCPPSize();
@@ -480,10 +484,11 @@ public class Frame extends JFrame {
 
                     Logs.generatedFiles(fileNames);
 
-                    if(initial) {
-                        createUserDevLogFolder();
+                    if(initialMove) {
                         Logs.moveLogsToFolder();
+                        initialMove = false;
                     }
+                    System.out.println(System.getProperty("user.home"));
 
                 } else {
                     JOptionPane.showMessageDialog(pane, "No C++ classes (.cpp files) have been selected.");
@@ -507,8 +512,8 @@ public class Frame extends JFrame {
 
     private void createUserDevLogFolder(){
         //System.out.println(System.getProperty("user.dir"));
-        new File(System.getProperty("user.dir")+"/User&DevLogs").mkdir();
-        initial = false;
+        new File(System.getProperty("user.dir")+"/logs").mkdir();
+        initialFolder = false;
     }
 
     private void preview() {

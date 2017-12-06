@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.logging.LogManager;
 import java.util.logging.*;
 import java.util.logging.Logger;
-import java.util.Scanner;
-import java.io.*;
-
+import java.nio.file.Files;
 /**
  * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
  */
@@ -26,7 +24,8 @@ public class Logs {
 
     public static void setupDevLogger() {
         try {
-            FileHandler devFH = new FileHandler("Dev.log", true);
+            String name = System.getProperty("user.dir");
+            FileHandler devFH = new FileHandler(name+"/logs/Dev.log", true);
             devFH.setLevel(Level.INFO);
             devLogr.addHandler(devFH);
         } catch (IOException e) {
@@ -36,7 +35,8 @@ public class Logs {
 
     public static void setupUserLogger() {
         try {
-            FileHandler userFH = new FileHandler("User.log", true);
+            String name = System.getProperty("user.dir");
+            FileHandler userFH = new FileHandler(name+"/logs/User.log", true);
             userFH.setLevel(Level.INFO);
             userFH.setFormatter(new SimpleFormatter());
             userLogr.addHandler(userFH);
@@ -82,6 +82,6 @@ public class Logs {
     }
 
     public static void moveLogsToFolder(){
-        //
+        //System.out.println(devLogr.getParent());
     }
 }
