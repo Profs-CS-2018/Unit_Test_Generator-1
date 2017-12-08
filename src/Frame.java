@@ -233,6 +233,7 @@ public class Frame extends JFrame {
         togglePanel.add(unitTestBox);
 
         filePanel.add(inputFiles);
+        inputFiles.setModel(dm);
         tabbedPane.addTab("Input Files", new JScrollPane(filePanel));
         tabbedPane.addTab("Preview", previewPanel);
         tabbedPane.addTab("Generated Files", new JScrollPane(outputPanel));
@@ -353,9 +354,9 @@ public class Frame extends JFrame {
             File[] files = fc.getSelectedFiles(); // the selected files from browse
             if (files.length >= 1) {
                 for (int i = 0; i < files.length; i++) {
-                    String curr = files[i].getAbsolutePath();
+                    //String curr = files[i].getAbsolutePath();
 
-                    if (dm.contains(curr)) {
+                    if (dm.contains(files[i].getAbsolutePath())) {
                         int reply = JOptionPane.showConfirmDialog(null, "Duplicate found: " + files[i].getName() +
                                         "\nWould you like to add this file anyway?", "Warning: Duplicate(s) exist.",
                                 JOptionPane.YES_NO_OPTION);
@@ -370,10 +371,9 @@ public class Frame extends JFrame {
                 }
             } else {
                 dm.addElement(files[0].getAbsolutePath());
-                inputFiles.setModel(dm);
+                //inputFiles.setModel(dm);
             }
-            //dm.addElement(fileNames);
-            inputFiles.setModel(dm);
+            //inputFiles.setModel(dm);
         } else {
             JOptionPane.showMessageDialog(pane, "Oops! Operation was cancelled.");
         }
@@ -384,24 +384,25 @@ public class Frame extends JFrame {
         filePath = addFileInput.getText();
         File file = new File(filePath);
 
-        if (!dm.contains(file.getAbsolutePath())) {
-            if (!file.exists()) {
-                JOptionPane.showMessageDialog(null, "Please enter valid directory name");
-            } else {
-                if (dm.contains(file.getAbsolutePath())) {
-                    JOptionPane.showMessageDialog(null, "Duplicate exists");
-                    inputFiles.setSelectedIndex(dm.indexOf(file.getAbsolutePath()));
-                } else {
-                    dm.addElement(file);
-                    selectedFiles.add(file);
-                    inputFiles.setModel(dm);
-                    filePanel.repaint();
-                }
+        if (dm.contains(file.getAbsolutePath())) {
+            int reply = JOptionPane.showConfirmDialog(null, "Duplicate found: " + file.getName() +
+                            "\nWould you like to add this file anyway?", "Warning: Duplicate(s) exist.",
+                    JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.YES_OPTION) {
+                dm.addElement(file.getAbsolutePath());
+                selectedFiles.add(file);
             }
         }
-        else
-        {
-            JOptionPane.showMessageDialog(null, "Duplicate exists");
+        else {
+            if (file.exists()) {
+                dm.addElement(file.getAbsolutePath());
+                selectedFiles.add(file);
+                //inputFiles.setModel(dm);
+                filePanel.repaint();
+            }
+            else {
+                JOptionPane.showMessageDialog(null, "Please enter a valid file path.");
+            }
         }
     }
 
@@ -420,7 +421,7 @@ public class Frame extends JFrame {
                 } else {
                     dm.addElement(file);
                     selectedFiles.add(file);
-                    inputFiles.setModel(dm);
+                    //inputFiles.setModel(dm);
                     filePanel.repaint();
                 }
             }
@@ -472,10 +473,10 @@ public class Frame extends JFrame {
 
                     preview.setEnabled(true);
 
-                    String longDir="";
-                    int i=0;
+                    String longDir = "";
+                    int i = 0;
                     ArrayList<String> fileNames = new ArrayList<>();
-                    for(File file : outputFiles){
+                    for (File file : outputFiles) {
                         longDir = file.getAbsolutePath();
                         String[] parts = longDir.split("/");
                         int size = parts.length;
@@ -484,7 +485,7 @@ public class Frame extends JFrame {
 
                     Logs.generatedFiles(fileNames);
 
-                    if(initialMove) {
+                    if (initialMove) {
                         Logs.moveLogsToFolder();
                         initialMove = false;
                     }
