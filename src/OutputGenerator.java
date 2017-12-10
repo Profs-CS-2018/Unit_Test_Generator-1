@@ -1,6 +1,5 @@
 import java.io.*;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 import java.util.Iterator;
 
 /**
@@ -15,19 +14,18 @@ public class OutputGenerator {
     private ArrayList<File> outputFiles;
     private ParseCPP parserCPP;
     private ParseInclude parserInclude;
-    private static final Logger LOGGER = Logger.getLogger(OutputGenerator.class.getName());
 
     /**
-     *
+     * Constructor for the OutputGenerator class. Initializes ArrayList collections and Parser instances.
      * @param files An ArrayList collection of File objects, initialized by the user via the GUI and File Chooser.
      */
     public OutputGenerator(ArrayList<File> files) {
         this.files = files;
         filesCPP = new ArrayList<>();
         filesH = new ArrayList<>();
-        parserInclude = new ParseInclude(files.get(0).getAbsolutePath(), files);
-        parserCPP = new ParseCPP(files.get(0).getAbsolutePath(), files);
         outputFiles = new ArrayList<>();
+        parserInclude = new ParseInclude();
+        parserCPP = new ParseCPP();
         initializeFileLists();
     }
 
@@ -38,7 +36,6 @@ public class OutputGenerator {
      * statements and dynamically write them into the makefile.
      */
     public void writeMakeFile() {
-        ArrayList<String> objectList = new ArrayList<>();
         File makefile = new File(files.get(0).getParent()+ "/" + "makefile");
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(makefile))) {
@@ -47,7 +44,6 @@ public class OutputGenerator {
 
             for (File object : filesCPP) {
                 String oFile = object.getName().split("\\.")[0] + ".o";
-                objectList.add(oFile);
                 writer.write(" " + oFile);
             }
 
@@ -64,10 +60,11 @@ public class OutputGenerator {
                 ArrayList<String> dependencies = parserInclude.parse(input);
 
                 for (String dependency : dependencies) {
-                    writer.write(dependency);
+                    writer.write(dependency + " ");
                 }
                 writer.write("\n\t$(CC) $(CFLAGS) " + input.getName());
             }
+
             writer.write("\n\nclean :");
             writer.write("\n\t-rm *.o $(OBJS) executable");
 
@@ -100,7 +97,7 @@ public class OutputGenerator {
                 }
 
                 String testName = input.getName().split("\\.")[0] + "Fixture()";
-                //String obj = " object";
+
                 writer.write("\nstruct " + className + "Fixture:testing::Test");
                 writer.write("\n{");
                 writer.write("\n\t" + className + " *comp;");
@@ -158,6 +155,7 @@ public class OutputGenerator {
                 outputFiles.add(unitTestFile);
             } catch (Exception e) {
                 e.printStackTrace();
+                System.out.println("Error generating test fixture for " + className);
             }
         }
     }
@@ -179,10 +177,16 @@ public class OutputGenerator {
         return outputFiles;
     }
 
+    /**
+     * This method sorts each of the C++ source files selected by the user into two collections;
+     * One for .cpp files, and one for .h files. This is done so that test suites are generated only
+     * for C++ classes, and not header files.
+     */
     private void initializeFileLists() {
         for (File file : files) {
             String fileName = file.getName();
             String fileExtension = getFileExtension(fileName);
+
             if (fileExtension.equals("cpp")) {
                 filesCPP.add(file);
             } else if (fileExtension.equals("h")) {
@@ -191,6 +195,12 @@ public class OutputGenerator {
         }
     }
 
+    /**
+     * This method takes the name of a file and returns its extension, by splitting the String
+     * on the last instance of the '.' character.
+     * @param fileName The full String representing the name of a File object.
+     * @return The extension associated with a file.
+     */
     private String getFileExtension(String fileName) {
         String extension = "NoExtension";
         int i = fileName.lastIndexOf('.');
@@ -200,14 +210,6 @@ public class OutputGenerator {
         return extension;
     }
 
-    public ArrayList moveOutputFiles(){
-        for (File file : outputFiles) {
-            System.out.println("LOOK AT ME: " + file.getParent() + "\\" + file.getName());
-        }
-
-        return outputFiles;
-    }
-
     /**
      * This method is used for checking whether or not files selected and submitted by the user for test
      * suite generation include .cpp files (classes).
@@ -215,10 +217,6 @@ public class OutputGenerator {
      */
     public int getFilesCPPSize() {
         return filesCPP.size();
-    }
-
-    public void removeFile(int index) {
-        filesCPP.remove(index);
     }
 
     /**

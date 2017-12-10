@@ -1,6 +1,7 @@
 import java.lang.*;
 
 /**
+ * The Driver class is used to start and run the Unit Test Generator application.
  * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
  */
 public class Driver {

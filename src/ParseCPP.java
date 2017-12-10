@@ -1,25 +1,33 @@
 import java.io.*;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 /**
+ * The ParseCPP class adds the Parser functionality for parsing/searching a selected C++ class
+ * for its method names; needed for generating Unit Test files.
  * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
  */
-public class ParseCPP extends Parser{
+public class ParseCPP extends Parser {
 
-    private static final Logger LOGGER = Logger.getLogger(ParseCPP.class.getName());
-    public ParseCPP(String path, ArrayList<File> files)
-    {
-        super(path);
+    /**
+     * Constructor for the ParseCPP class.
+     *
+     */
+    public ParseCPP() {
+
     }
 
+    /**
+     * The parse method of the ParseCPP class takes a C++ class as input, and parses through it in search of
+     * its methods. This is done by searching for the '::' character, and then splitting the text
+     * accordingly. Each found method name is added to an ArrayList, and then returned for use in the
+     * OutputGenerator class.
+     * @param input A C++ class (File object) to search through.
+     * @return An ArrayList of String objects, representing the names of each method found within a C++ class.
+     */
     public ArrayList parse(File input) {
         ArrayList<String> methodList = new ArrayList<>();
-        ArrayList lineList = new ArrayList<>();
         String line;
-        String[] methodTypes = new String[] {"void", "int", "string", "bool", "long"};
         String className = input.getName().split("\\.")[0];
-        int num = 0;
 
         try {
             bufferedReader = new BufferedReader(new FileReader(input));

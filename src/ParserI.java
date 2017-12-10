@@ -3,5 +3,6 @@
  */
 public interface ParserI {
 
-    public void parse();
+    void parse();
+
 }

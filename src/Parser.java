@@ -1,27 +1,14 @@
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.logging.Logger;
 
 /**
  * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
  */
 public class Parser implements ParserI {
 
-    //private ArrayList<String> lineList;
     protected BufferedReader bufferedReader;
-    protected FileReader fileReader;
-    private ArrayList<File> filesCPP;
-    private ArrayList<File> filesH;
-    private String path = "";
 
-    private static final Logger LOGGER = Logger.getLogger(Parser.class.getName());
+    public Parser() {
 
-    public Parser(String path) {
-        this.path = path;
     }
 
     public void parse() {

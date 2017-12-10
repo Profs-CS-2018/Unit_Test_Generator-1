@@ -1,24 +1,30 @@
 import java.io.*;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 /**
+ * The ParseInclude class adds the Parser functionality for parsing/searching a selected C++ class
+ * to determine its dependencies; needed to correctly write makefiles and test fixtures.
  * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
  */
 public class ParseInclude extends Parser {
 
-    private static final Logger LOGGER = Logger.getLogger(ParseInclude.class.getName());
+    /**
+     * The constructor for the ParseInclude class.
+     */
+    public ParseInclude() {
 
-    public ParseInclude(String path, ArrayList<File> files) {
-        super(path);
     }
 
-
+    /**
+     * The parse method in the ParseInclude class takes a C++ class and parses through it in search
+     * of '#include' statements, to determine what a class' dependencies may be. Any found dependencies
+     * are stored into an ArrayList, and then returned for use in the OutputGenerator class.
+     * @param inputFile The C++ source file to search through for dependencies
+     * @return parseList: The collection of file dependencies found while parsing.
+     */
     public ArrayList parse(File inputFile) {
         ArrayList<String> parseList = new ArrayList<>();
-        ArrayList lineList = new ArrayList<>();
         String line;
-        int num = 0;
 
         try {
             bufferedReader = new BufferedReader(new FileReader(inputFile));
@@ -31,10 +37,8 @@ public class ParseInclude extends Parser {
                 if (line.contains("#include") && !line.contains("<")) {
                     line = line.replace("#include ", "");
                     line = line.replaceAll("\"", "");
-                    lineList.add("Line: " + (num + 1) + ".) " + line);
                     parseList.add(line);
                 }
-                num++;
             }
         } catch (IOException e) {
             e.printStackTrace();

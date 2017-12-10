@@ -6,26 +6,17 @@ import java.awt.GridLayout;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.util.Set;
-import java.util.HashSet;
-import java.nio.file.PathMatcher;
-import java.nio.file.FileSystems;
-import java.nio.file.FileSystem;
-import java.nio.file.Path;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultEditorKit;
 import java.util.Iterator;
 
 /**
  * The Frame class creates the Front End/GUI application for the Unit Test Generator Tool.
- *
  * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
  * @version  2017-12-03
  */
@@ -44,10 +35,6 @@ public class Frame extends JFrame {
     private JPanel previewPanel;
     private JPanel errorPanel;
 
-    //File Choosers
-    private JFileChooser fc;
-    private JFileChooser fc1;
-
     //Text Areas
     private JTextField textFieldSave;
     private JTextField addFileInput;
@@ -62,8 +49,6 @@ public class Frame extends JFrame {
 
     //Labels
     private JLabel fixedLabel;
-    private JLabel iconNameLabel;
-    private JLabel iconLabel;
 
     //Default List Model for content
     private DefaultListModel dm;
@@ -75,8 +60,6 @@ public class Frame extends JFrame {
     //File List for storing the files
     private ArrayList<File> selectedFiles;
 
-    //Path name variable for storing the Path name.
-    private String path;
 
     //Declare the Output Generator Object
     private OutputGenerator outputGen;
@@ -84,10 +67,8 @@ public class Frame extends JFrame {
     //Call upon the logging capabilities
     private static final Logger LOGGER = Logger.getLogger(Frame.class.getName());
 
-    private String dirName;
-    private String fileName;
-    private boolean initialFolder=true;
-    private boolean initialMove=true;
+    private boolean initialFolder = true;
+    private boolean initialMove = true;
 
     /**
      * @param title The title of the created GUI.
@@ -98,8 +79,7 @@ public class Frame extends JFrame {
         createContent();
         createMenuBar();
 
-        //	java.net.URL url = ClassLoader.getSystemResource("src/asrc.gif");
-        /**
+        /*
          * Changes the default theme of JFileChooser
          */
         try {
@@ -109,10 +89,10 @@ public class Frame extends JFrame {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
         setVisible(true);
-    } /* End of Constructor */
+    }
 
     /**
-     *
+     * createFrame method
      */
     private void createFrame() {
         int width = 1000;
@@ -122,10 +102,10 @@ public class Frame extends JFrame {
         pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); //this should center the app
-    }/* End of Frame */
+    }
 
     /**
-     *
+     * createContent method
      */
     private void createContent() {
         pane = getContentPane();
@@ -133,7 +113,6 @@ public class Frame extends JFrame {
         dm = new DefaultListModel();
 
         inputFiles = new JList<DefaultListModel>();
-
         selectedFiles = new ArrayList<>();
 
         fixedLabel = new JLabel("Output Save Destination");
@@ -162,9 +141,7 @@ public class Frame extends JFrame {
         JButton preview = new JButton("Preview");
         JButton remove = new JButton("Remove");
         JButton reset = new JButton("Reset");
-
         JButton addFile = new JButton("Add File");
-
         JButton submit = new JButton("Submit");
         JButton cancel = new JButton("Close");
 
@@ -224,7 +201,6 @@ public class Frame extends JFrame {
         border.setTitleJustification(TitledBorder.CENTER);
         border.setTitlePosition(TitledBorder.TOP);
 
-        JPanel panel = new JPanel();
         togglePanel.setBorder(border);
         togglePanel.setVisible(true);
         togglePanel.add(allFilesBox);
@@ -319,16 +295,16 @@ public class Frame extends JFrame {
 
         JMenu PREFERENCES = new JMenu("Preferences");
         menubar.add(PREFERENCES);
-        JMenuItem PREVIEW = new JMenuItem("Preview");
-        JMenuItem TEST_FILES = new JMenuItem("Test Files");
-        JMenuItem TEST_FIXTURES = new JMenuItem("Test Fixtures");
-        JMenuItem MAKEFILES = new JMenuItem("Makefiles");
-        PREFERENCES.add(PREVIEW);
-        PREFERENCES.add(TEST_FILES);
-        PREFERENCES.add(TEST_FIXTURES);
-        PREFERENCES.add(MAKEFILES);
+        JMenuItem EDITOR = new JMenuItem("Add/Edit Preferences");
+        PREFERENCES.add(EDITOR);
     }
 
+    /**
+     * The browse method is used when a user selects the 'Browse' button within the GUI.
+     * This method opens a File Chooser window, where the user can search their file system for one
+     * or multiple files.
+     * This method also contains file filtering, duplicate file checking with the ability to make decisions.
+     */
     private void browse() {
         JFileChooser fc = new JFileChooser();
         fc.setMultiSelectionEnabled(true);
@@ -337,7 +313,6 @@ public class Frame extends JFrame {
         fc.setCurrentDirectory(new File(System.getProperty("user.name")));
 
         // The following code adds file extension filters to the File Chooser.
-        // For searching the files, filters which files appear in the box
         fc.setFileFilter(new FileNameExtensionFilter("Text Files(.txt)", "txt"));
         fc.setFileFilter(new FileNameExtensionFilter("Java(.java)", "java"));
         fc.setFileFilter(new FileNameExtensionFilter("C++(.cpp)", "cpp"));
@@ -351,11 +326,10 @@ public class Frame extends JFrame {
          */
         int returnVal = fc.showOpenDialog(pane);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File[] files = fc.getSelectedFiles(); // the selected files from browse
+            File[] files = fc.getSelectedFiles();      // the selected files from browse
+
             if (files.length >= 1) {
                 for (int i = 0; i < files.length; i++) {
-                    //String curr = files[i].getAbsolutePath();
-
                     if (dm.contains(files[i].getAbsolutePath())) {
                         int reply = JOptionPane.showConfirmDialog(null, "Duplicate found: " + files[i].getName() +
                                         "\nWould you like to add this file anyway?", "Warning: Duplicate(s) exist.",
@@ -371,11 +345,7 @@ public class Frame extends JFrame {
                 }
             } else {
                 dm.addElement(files[0].getAbsolutePath());
-                //inputFiles.setModel(dm);
             }
-            //inputFiles.setModel(dm);
-        } else {
-            JOptionPane.showMessageDialog(pane, "Oops! Operation was cancelled.");
         }
     }
 
@@ -397,7 +367,6 @@ public class Frame extends JFrame {
             if (file.exists()) {
                 dm.addElement(file.getAbsolutePath());
                 selectedFiles.add(file);
-                //inputFiles.setModel(dm);
                 filePanel.repaint();
             }
             else {
@@ -438,8 +407,8 @@ public class Frame extends JFrame {
                 if (initialFolder) {
                     createUserDevLogFolder();
                 }
+
                 outputGen = new OutputGenerator(selectedFiles);
-                System.out.println(selectedFiles);
                 int filesCPPSize = outputGen.getFilesCPPSize();
 
                 if (filesCPPSize > 0) {
@@ -473,8 +442,7 @@ public class Frame extends JFrame {
 
                     preview.setEnabled(true);
 
-                    String longDir = "";
-                    int i = 0;
+                    String longDir;
                     ArrayList<String> fileNames = new ArrayList<>();
                     for (File file : outputFiles) {
                         longDir = file.getAbsolutePath();
@@ -489,7 +457,6 @@ public class Frame extends JFrame {
                         Logs.moveLogsToFolder();
                         initialMove = false;
                     }
-                    System.out.println(System.getProperty("user.home"));
 
                 } else {
                     JOptionPane.showMessageDialog(pane, "No C++ classes (.cpp files) have been selected.");
@@ -501,29 +468,24 @@ public class Frame extends JFrame {
             if (!makeFileBox.isSelected() && !testFixtureBox.isSelected() && !unitTestBox.isSelected()) {
                 JOptionPane.showMessageDialog(pane, "No output options selected.");
             }
-        } catch (Exception e1) {        //catch any error which happens to have resulted in generation failure
+        } catch (Exception e1) {
             JOptionPane.showMessageDialog(null, "ERROR: See Error Information Tab " +
                     "for details: \nfile already exists.");
             e1.printStackTrace();
             LOGGER.log(Level.FINE, "ERROR:  {0} file already exists.");
-
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         }
     }
 
     private void createUserDevLogFolder(){
-        //System.out.println(System.getProperty("user.dir"));
         new File(System.getProperty("user.dir")+"/logs").mkdir();
         initialFolder = false;
     }
 
+    /**
+     * The preview method displays the contents of a selected file from the 'Generated Files' tab
+     * in the Preview tab, upon the press of the 'Preview' button.
+     */
     private void preview() {
-
-        /*
-         * The following code checks if the action of clicking the button takes place
-         * if it does then the user sees the textArea on the Preview tab changed to
-         * have the preview of the output file in it.
-         */
         if (generatedFiles != null) {
             int selectedIndex = generatedFiles.getSelectedIndex();
 
@@ -532,10 +494,6 @@ public class Frame extends JFrame {
                     BufferedReader br = new BufferedReader(new FileReader(generatedFiles.getSelectedValue().toString()));
                     String sCurrentLine;
                     String previewStr = "Preview";
-                    /*
-                     * trying to create a new Panel here.
-                     */
-                    JScrollPane scrollPane = new JScrollPane();
                     JPanel fileContent = new JPanel();
                     fileContent.setLayout(new BorderLayout());
                     JTextArea textArea = new JTextArea();
@@ -554,7 +512,6 @@ public class Frame extends JFrame {
                         tabbedPane.setComponentAt(1, new JScrollPane(fileContent));
                         tabbedPane.getModel().setSelectedIndex(tabbedPane.indexOfTab(previewStr));
                     }
-                    //JOptionPane.showMessageDialog(pane, "See Preview Tab.");
                 } catch (Exception e1) {
                     JOptionPane.showMessageDialog(null, e1.getMessage());
                 }
@@ -680,13 +637,8 @@ public class Frame extends JFrame {
         previewPanel.removeAll();
         errorPanel.removeAll();
 
-
         repaint();
         revalidate();
-    }
-
-    public static Logger getLogger() {
-        return LOGGER;
     }
 
     /**

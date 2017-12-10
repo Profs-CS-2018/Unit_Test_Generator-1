@@ -1,10 +1,8 @@
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.LogManager;
 import java.util.logging.*;
 import java.util.logging.Logger;
-import java.nio.file.Files;
+
 /**
  * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
  */
@@ -12,11 +10,8 @@ public class Logs {
 
     private final static Logger userLogr = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private final static Logger devLogr = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    static boolean initialUserLog = true;
-    static boolean initialDevLog = true;
-    static String dirName;
-    static String longDir;
-    static String fileName;
+    private static boolean initialUserLog = true;
+    private static boolean initialDevLog = true;
 
     public Logs() {
 
@@ -51,10 +46,10 @@ public class Logs {
                 setupUserLogger();
                 setupDevLogger();
                 initialUserLog = false;
-            } else if(file == "0") {
+            } else if(file.equals("0")) {
                 //
             }
-            else{
+            else {
                 userLogr.info("Generating " + file + "(s)... \n");
             }
         } catch (Exception e) {
