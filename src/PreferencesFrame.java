@@ -134,6 +134,7 @@ public class PreferencesFrame extends JFrame {
         if (filePaths.isEmpty()) {
             JOptionPane.showMessageDialog(null, "There are no new file paths to be saved.");
         } else {
+            new File(System.getProperty("user.dir") + "/preferences").mkdir();
             try (BufferedWriter bw = new BufferedWriter(new FileWriter("preferences/directories.txt", true))) {
                 for (String directory : filePaths) {
                     if (!storedDirectories.contains(directory)) {
