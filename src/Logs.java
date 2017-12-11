@@ -47,7 +47,10 @@ public class Logs {
                 setupDevLogger();
                 initialUserLog = false;
             } else if(file.equals("0")) {
-                //
+                //Bypasses Log bug
+            }
+            else if(file.equals("1")){
+                userLogr.info("GUI Initialized \n");
             }
             else {
                 userLogr.info("Generating " + file + "(s)... \n");
@@ -74,9 +77,5 @@ public class Logs {
         } catch (Exception e) {
             devLogr.log(Level.SEVERE, "ERROR: File not working \n");
         }
-    }
-
-    public static void moveLogsToFolder(){
-        //System.out.println(devLogr.getParent());
     }
 }

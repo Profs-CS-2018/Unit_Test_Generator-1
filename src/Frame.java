@@ -1,8 +1,4 @@
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -34,6 +30,7 @@ public class Frame extends JFrame {
     private JPanel filePanel;
     private JPanel previewPanel;
     private JPanel errorPanel;
+    private JPanel userPanel;
 
     //Text Areas
     private JTextField textFieldSave;
@@ -155,6 +152,7 @@ public class Frame extends JFrame {
         previewPanel = new JPanel();
         errorPanel = new JPanel();
         outputPanel = new JPanel();
+        userPanel = new JPanel();
         JPanel sideBtnPanel = new JPanel();
         JPanel btmBtnPanel = new JPanel();
         JPanel northContainer = new JPanel();
@@ -185,6 +183,7 @@ public class Frame extends JFrame {
         previewPanel.setLayout(new BorderLayout(7, 7));
         errorPanel.setLayout(new BorderLayout(7, 7));
         outputPanel.setLayout(new BorderLayout(7, 7));
+        userPanel.setLayout(new BorderLayout(7,7));
 
         //Grid Layout Button Panels
         sideBtnPanel.setLayout(new GridLayout(0, 2));
@@ -216,6 +215,7 @@ public class Frame extends JFrame {
         tabbedPane.addTab("Input Files", new JScrollPane(filePanel));
         tabbedPane.addTab("Preview", previewPanel);
         tabbedPane.addTab("Generated Files", new JScrollPane(outputPanel));
+        tabbedPane.addTab("Logs", userPanel);
         tabbedPane.addTab("Errors", errorPanel);
 
         fileInputPanel.add(addFileInput);
@@ -245,6 +245,7 @@ public class Frame extends JFrame {
         previewPanel.setPreferredSize(new Dimension(100, 100));
         errorPanel.setPreferredSize(new Dimension(100, 100));
         outputPanel.setPreferredSize(new Dimension(100, 100));
+        userPanel.setPreferredSize(new Dimension(100,100));
         togglePanel.setPreferredSize(new Dimension(100, 100));
         fileInputPanel.setPreferredSize(new Dimension(300, 100));
         imagePanel.setPreferredSize(new Dimension(500, 300));
@@ -260,6 +261,15 @@ public class Frame extends JFrame {
         addFile.addActionListener(e -> addFiles());
         reset.addActionListener(e -> reset());
 
+        if (initialFolder) {
+            createUserDevLogFolder();
+        }
+        //LOGGER.log(Level.INFO, "GUI Initialized");
+        Logs.userLog("0");
+        Logs.userLog("1");
+
+        showLogs();
+
         //Adding Check Box Listeners
         allFilesBox.addActionListener(e -> allFilesChecked());
         makeFileBox.addActionListener(e -> makeFilesChecked());
@@ -268,6 +278,8 @@ public class Frame extends JFrame {
         makeFileBox.addActionListener(e -> otherFilesSelected());
         testFixtureBox.addActionListener(e -> otherFilesSelected());
         unitTestBox.addActionListener(e -> otherFilesSelected());
+
+
     }
 
     private void createMenuBar() {
@@ -411,9 +423,6 @@ public class Frame extends JFrame {
     private void submit(JButton preview) {
         try {
             if (selectedFiles.size() > 0) {
-                if (initialFolder) {
-                    createUserDevLogFolder();
-                }
 
                 outputGen = new OutputGenerator(selectedFiles);
                 int filesCPPSize = outputGen.getFilesCPPSize();
@@ -459,11 +468,7 @@ public class Frame extends JFrame {
                     }
 
                     Logs.generatedFiles(fileNames);
-
-                    if (initialMove) {
-                        Logs.moveLogsToFolder();
-                        initialMove = false;
-                    }
+                    showLogs();
 
                 } else {
                     JOptionPane.showMessageDialog(pane, "No C++ classes (.cpp files) have been selected.");
@@ -480,6 +485,32 @@ public class Frame extends JFrame {
                     "for details: \nfile already exists.");
             e1.printStackTrace();
             LOGGER.log(Level.FINE, "ERROR:  {0} file already exists.");
+        }
+    }
+
+    private void showLogs(){
+        try{
+            //FileReader fileReader = ;
+            BufferedReader br = new BufferedReader (new FileReader(System.getProperty("user.dir")+"/logs/User.log"));
+            String sCurrentLine;
+            JPanel fileContent = new JPanel();
+            fileContent.setLayout(new BorderLayout());
+            JTextArea textArea = new JTextArea();
+
+            if(tabbedPane.indexOfTab("Logs")==3){
+                while((sCurrentLine=br.readLine()) != null){
+                    textArea.append(sCurrentLine + "\n");
+                }
+
+                textArea.setEditable(false);
+                fileContent.add(textArea);
+
+                tabbedPane.setComponentAt(3, new JScrollPane(fileContent));
+                tabbedPane.getModel().setSelectedIndex(tabbedPane.indexOfTab("Logs"));
+            }
+        }
+        catch(Exception e){
+            LOGGER.log(Level.SEVERE, "ERROR: Can't display User Logs");
         }
     }
 
