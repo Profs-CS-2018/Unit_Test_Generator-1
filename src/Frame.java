@@ -60,7 +60,6 @@ public class Frame extends JFrame {
     //File List for storing the files
     private ArrayList<File> selectedFiles;
 
-
     //Declare the Output Generator Object
     private OutputGenerator outputGen;
 
@@ -69,6 +68,9 @@ public class Frame extends JFrame {
 
     private boolean initialFolder = true;
     private boolean initialMove = true;
+
+    public static String userDirectory;
+    public static String makeExecutableName;
 
     /**
      * @param title The title of the created GUI.
@@ -121,6 +123,8 @@ public class Frame extends JFrame {
         textField = new JTextField("C://UnitTest/");
         textField.setToolTipText("Modify selection paths.");
         textField.setEditable(true);
+
+        userDirectory = "";
 
         failure = new JTextArea();
 
@@ -195,7 +199,6 @@ public class Frame extends JFrame {
         eastContainer.setLayout(new BorderLayout());
         southContainer.setLayout(new FlowLayout());
         westContainer.setLayout(new FlowLayout());
-
 
         TitledBorder border = new TitledBorder("Select the type(s) of files to generate:");
         border.setTitleJustification(TitledBorder.CENTER);
@@ -297,6 +300,7 @@ public class Frame extends JFrame {
         menubar.add(PREFERENCES);
         JMenuItem EDITOR = new JMenuItem("Add/Edit Preferences");
         PREFERENCES.add(EDITOR);
+        EDITOR.addActionListener(e -> createPreferencesFrame());
     }
 
     /**
@@ -309,8 +313,11 @@ public class Frame extends JFrame {
         JFileChooser fc = new JFileChooser();
         fc.setMultiSelectionEnabled(true);
 
-        //The following line of code can be used to open the file search in a particular directory
-        fc.setCurrentDirectory(new File(System.getProperty("user.name")));
+        if (userDirectory.equals("")) {
+            fc.setCurrentDirectory(new File(System.getProperty("user.name")));
+        } else {
+            fc.setCurrentDirectory(new File(userDirectory));
+        }
 
         // The following code adds file extension filters to the File Chooser.
         fc.setFileFilter(new FileNameExtensionFilter("Text Files(.txt)", "txt"));
@@ -417,7 +424,7 @@ public class Frame extends JFrame {
                     Logs.userLog("0");
 
                     if (makeFileBox.isSelected()) {
-                        outputGen.writeMakeFile();
+                        outputGen.writeMakeFile(makeExecutableName);
                         Logs.userLog("makefile");
                     }
 
@@ -652,5 +659,9 @@ public class Frame extends JFrame {
             File file = iterator.next();
             iterator.remove();
         }
+    }
+
+    private void createPreferencesFrame() {
+        PreferencesFrame preferencesFrame = new PreferencesFrame();
     }
 }

@@ -35,11 +35,17 @@ public class OutputGenerator {
      * This method will use the parse method from the ParseInclude class to search for dependencies via '#include'
      * statements and dynamically write them into the makefile.
      */
-    public void writeMakeFile() {
+    public void writeMakeFile(String makeExecutableName) {
+        String executableName;
+        if (makeExecutableName == null) {
+            executableName = "executable";
+        } else {
+            executableName = makeExecutableName;
+        }
         File makefile = new File(files.get(0).getParent()+ "/" + "makefile");
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(makefile))) {
-            writer.write("all: executable");
+            writer.write("all: " + executableName);
             writer.write("\n\nOBJS =");
 
             for (File object : filesCPP) {
@@ -51,8 +57,8 @@ public class OutputGenerator {
             writer.write("\nDEBUG = -g");
             writer.write("\nCFLAGS = -Wall -c $(DEBUG)");
             writer.write("\nLFLAGS = -Wall $(DEBUG)");
-            writer.write("\n\nexecutable : $(OBJS)");
-            writer.write("\n\t$(CC) $(LFLAGS) $(OBJS) -o executable");
+            writer.write("\n\n" + executableName + " : $(OBJS)");
+            writer.write("\n\t$(CC) $(LFLAGS) $(OBJS) -o " + executableName);
 
             for (File input : filesCPP) {
                 String oFile = input.getName().split("\\.")[0] + ".o";
@@ -66,7 +72,7 @@ public class OutputGenerator {
             }
 
             writer.write("\n\nclean :");
-            writer.write("\n\t-rm *.o $(OBJS) executable");
+            writer.write("\n\t-rm *.o $(OBJS) " + executableName);
 
             writer.flush();
             writer.close();
