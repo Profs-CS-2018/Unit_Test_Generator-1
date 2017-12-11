@@ -269,6 +269,7 @@ public class Frame extends JFrame {
         Logs.userLog("1");
 
         showLogs();
+        tabbedPane.setSelectedIndex(0);
 
         //Adding Check Box Listeners
         allFilesBox.addActionListener(e -> allFilesChecked());
@@ -469,6 +470,7 @@ public class Frame extends JFrame {
 
                     Logs.generatedFiles(fileNames);
                     showLogs();
+                    tabbedPane.setSelectedIndex(2);
 
                 } else {
                     JOptionPane.showMessageDialog(pane, "No C++ classes (.cpp files) have been selected.");
