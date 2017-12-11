@@ -28,11 +28,11 @@ public class PreferencesFrame extends JFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
-        setVisible(true);
+        //setVisible(true);
     }
 
     private void createFrame() {
-        setPreferredSize(new Dimension(800, 900));
+        setPreferredSize(new Dimension(800, 400));
         pack();
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -51,6 +51,7 @@ public class PreferencesFrame extends JFrame {
         pane.add(directoryLabel, constraints);
 
         directoryInput = new JComboBox<>(userDirectories);
+        directoryInput.setPrototypeDisplayValue("XXXXXXXXXXXXXXXXXX");
         constraints.gridx = 0;
         constraints.gridy = 1;
         constraints.gridwidth = 3;
@@ -84,7 +85,7 @@ public class PreferencesFrame extends JFrame {
         constraints.weighty = 1;
         pane.add(applyMakeName, constraints);
 
-        JPanel buttonPanel = new JPanel(new BorderLayout());
+        JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.setSize(new Dimension(600, 300));
 
         JButton save = new JButton("Save");
@@ -99,6 +100,8 @@ public class PreferencesFrame extends JFrame {
         applyMakeName.addActionListener(e -> setMakeName());
         save.addActionListener(e -> saveDirectoryPreferences());
         saveAndClose.addActionListener(e -> saveAndClose());
+
+        setVisible(true);
     }
 
     private void setDirectory() {
@@ -107,7 +110,7 @@ public class PreferencesFrame extends JFrame {
         } else {
             String filePath = (String) directoryInput.getSelectedItem();
             if (Files.exists(Paths.get(filePath))) {
-                if (!storedDirectories.contains(filePath)) {
+                if (!storedDirectories.contains(filePath) && (!filePaths.contains(filePath))) {
                     directoryInput.addItem(filePath);
                     filePaths.add(filePath);
                 }
