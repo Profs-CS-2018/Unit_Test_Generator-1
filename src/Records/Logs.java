@@ -8,7 +8,9 @@ import java.util.logging.Logger;
 /**
  * The Logs class is responsible for generating records for both the User and Developer. Record Logs include important
  * information regarding the proper execution of the program as well as error reporting and run time metrics.
+ *
  * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
+ * @version 2017.12.12
  */
 public class Logs {
 

@@ -6,7 +6,9 @@ import java.util.ArrayList;
 /**
  * The TestGenerator.ParseInclude class adds the TestGenerator.Parser functionality for parsing/searching a selected C++ class
  * to determine its dependencies; needed to correctly write makefiles and test fixtures.
+ *
  * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
+ * @version 2017.12.12
  */
 public class ParseInclude extends Parser {
 

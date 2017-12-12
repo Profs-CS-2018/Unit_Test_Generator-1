@@ -6,8 +6,10 @@ import java.util.Iterator;
 
 /**
  * The Output Generator is responsible for creating Unit Test files. Primary functionality of
- * this class includes recieving parsed file data from the Parser Class and writing various types of Unit Tests.
+ * this class includes receiving parsed file data from the Parser Class and writing various types of testing files.
+ *
  * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
+ * @version 2017.12.12
  */
 public class OutputGenerator {
 
@@ -168,13 +170,6 @@ public class OutputGenerator {
                 System.out.println("Error generating test fixture for " + className);
             }
         }
-    }
-
-    public String getDirectoryName() {
-        String s = "";
-        String filePath = files.get(0).getParent();
-        String directoryName = filePath.replace("\\", "\\\\");
-        return directoryName;
     }
 
     /**

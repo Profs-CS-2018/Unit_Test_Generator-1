@@ -17,8 +17,9 @@ import Records.Logs;
 
 /**
  * The GraphicalUserInterface.Frame class creates the Front End/GUI application for the Unit Test Generator Tool.
+ *
  * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
- * @version  2017-12-03
+ * @version 2017.12.12
  */
 public class Frame extends JFrame {
 
@@ -66,14 +67,14 @@ public class Frame extends JFrame {
 
     //Call upon the logging capabilities
     private static final Logger LOGGER = Logger.getLogger(Frame.class.getName());
-
     private boolean initialFolder = true;
-    private boolean initialMove = true;
 
     public static String userDirectory;
     public static String makeExecutableName;
 
     /**
+     * The constructor for the Frame class. Calls the methods responsible for populating the GUI
+     * with all of its content and sets it to be visible on screen.
      * @param title The title of the created GUI.
      */
     public Frame(String title) {
@@ -82,9 +83,6 @@ public class Frame extends JFrame {
         createContent();
         createMenuBar();
 
-        /*
-         * Changes the default theme of JFileChooser
-         */
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             setDefaultLookAndFeelDecorated(true);
@@ -95,7 +93,7 @@ public class Frame extends JFrame {
     }
 
     /**
-     * createFrame method
+     * The createFrame method initializes the GUI itself, setting its dimensions, location, and close operation.
      */
     private void createFrame() {
         int width = 1000;
@@ -108,7 +106,8 @@ public class Frame extends JFrame {
     }
 
     /**
-     * createContent method
+     * The createContent method initializes the different collections/data structures used throughout
+     * the lifetime of the program.
      */
     private void createContent() {
         pane = getContentPane();
@@ -132,6 +131,10 @@ public class Frame extends JFrame {
         buildApplication();
     }
 
+    /**
+     * The buildApplication populates the GUI with the majority of its content, including buttons, check boxes,
+     * text fields, tabbed panes, etc. This method also adds action listeners to the appropriate components.
+     */
     private void buildApplication() {
         allFilesBox = new JCheckBox("All Files");
         allFilesBox.setSelected(true);
@@ -219,7 +222,7 @@ public class Frame extends JFrame {
         tabbedPane.addTab("Input Files", new JScrollPane(filePanel));
         tabbedPane.addTab("Preview", previewPanel);
         tabbedPane.addTab("Generated Files", new JScrollPane(outputPanel));
-        tabbedPane.addTab("Records.Logs", userPanel);
+        tabbedPane.addTab("Logs", userPanel);
         tabbedPane.addTab("Errors", errorPanel);
 
         fileInputPanel.add(addFileInput);
@@ -268,10 +271,9 @@ public class Frame extends JFrame {
         if (initialFolder) {
             createUserDevLogFolder();
         }
-        //LOGGER.log(Level.INFO, "GUI Initialized");
+
         Logs.userLog("0");
         Logs.userLog("1");
-
         showLogs();
         tabbedPane.setSelectedIndex(0);
 
@@ -283,10 +285,12 @@ public class Frame extends JFrame {
         makeFileBox.addActionListener(e -> otherFilesSelected());
         testFixtureBox.addActionListener(e -> otherFilesSelected());
         unitTestBox.addActionListener(e -> otherFilesSelected());
-
-
     }
 
+    /**
+     * This method creates the menu bar found along the top of the GUI and adds action listeners
+     * to each of the menu's components.
+     */
     private void createMenuBar() {
         JMenuBar menubar = new JMenuBar();
         setJMenuBar(menubar);
@@ -315,7 +319,7 @@ public class Frame extends JFrame {
 
         JMenu PREFERENCES = new JMenu("Preferences");
         menubar.add(PREFERENCES);
-        JMenuItem EDITOR = new JMenuItem("Add/Edit Preferences");
+        JMenuItem EDITOR = new JMenuItem("Edit Preferences");
         PREFERENCES.add(EDITOR);
         EDITOR.addActionListener(e -> createPreferencesFrame());
     }
@@ -343,11 +347,6 @@ public class Frame extends JFrame {
         fc.setFileFilter(new FileNameExtensionFilter("C++(.cpp, .h)", "cpp", "h"));
         fc.setFileFilter(new FileNameExtensionFilter("C++(.cpp, .h) and Text Files(.txt)", "cpp", "txt", "h"));
 
-        /*
-         * The following code checks if the action of clicking the button takes place
-         * if it does then the user sees the textArea populated with the selected file
-         * names
-         */
         int returnVal = fc.showOpenDialog(pane);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File[] files = fc.getSelectedFiles();      // the selected files from browse
@@ -373,6 +372,11 @@ public class Frame extends JFrame {
         }
     }
 
+    /**
+     * As an alternative to browse, this method gives users the functionality to type in a file (along with its
+     * directory) to add a file to the GUI.
+     * The addFiles method also includes duplicate checking, similarly to browse.
+     */
     private void addFiles() {
         String filePath;
         filePath = addFileInput.getText();
@@ -386,8 +390,7 @@ public class Frame extends JFrame {
                 dm.addElement(file.getAbsolutePath());
                 selectedFiles.add(file);
             }
-        }
-        else {
+        } else {
             if (file.exists()) {
                 dm.addElement(file.getAbsolutePath());
                 selectedFiles.add(file);
@@ -399,32 +402,15 @@ public class Frame extends JFrame {
         }
     }
 
-    private void search() {
-        String filePath = JOptionPane.showInputDialog(this, "Search for a file", null);
-        filePath = addFileInput.getText();
-        File file = new File(filePath);
-
-        if (!dm.contains(file.getAbsolutePath())) {
-            if (!file.exists()) {
-                JOptionPane.showMessageDialog(null, "Please enter valid directory name");
-            } else {
-                if (dm.contains(file.getAbsolutePath())) {
-                    JOptionPane.showMessageDialog(null, "Duplicate exists");
-                    inputFiles.setSelectedIndex(dm.indexOf(file.getAbsolutePath()));
-                } else {
-                    dm.addElement(file);
-                    selectedFiles.add(file);
-                    //inputFiles.setModel(dm);
-                    filePanel.repaint();
-                }
-            }
-        }
-        else
-        {
-            JOptionPane.showMessageDialog(null, "Duplicate exists");
-        }
-    }
-
+    /**
+     * The submit method passes each of the C++ source files selected by the user over to the OutputGenerator
+     * class to that corresponding test files can be generated for each one.
+     * This method also checks to see which checkboxes are on, so that only desired test files are generated.
+     * Finally, this method also received a collection of files which are generated and displays them
+     * in the 'Generated Files' tab.
+     * @param preview Automatically passes the 'preview' JButton, so that it becomes visible for use
+     *                after a submit.
+     */
     private void submit(JButton preview) {
         try {
             if (selectedFiles.size() > 0) {
@@ -494,8 +480,11 @@ public class Frame extends JFrame {
         }
     }
 
-    private void showLogs(){
-        try{
+    /**
+     * The showLogs method loads the contents of the USer.logs file into the 'Logs' tab of the GUI.
+     */
+    private void showLogs() {
+        try {
             //FileReader fileReader = ;
             BufferedReader br = new BufferedReader (new FileReader(System.getProperty("user.dir")+"/logs/User.log"));
             String sCurrentLine;
@@ -503,8 +492,8 @@ public class Frame extends JFrame {
             fileContent.setLayout(new BorderLayout());
             JTextArea textArea = new JTextArea();
 
-            if(tabbedPane.indexOfTab("Records.Logs")==3){
-                while((sCurrentLine=br.readLine()) != null){
+            if (tabbedPane.indexOfTab("Logs") == 3) {
+                while ((sCurrentLine=br.readLine()) != null) {
                     textArea.append(sCurrentLine + "\n");
                 }
 
@@ -512,15 +501,18 @@ public class Frame extends JFrame {
                 fileContent.add(textArea);
 
                 tabbedPane.setComponentAt(3, new JScrollPane(fileContent));
-                tabbedPane.getModel().setSelectedIndex(tabbedPane.indexOfTab("Records.Logs"));
+                tabbedPane.getModel().setSelectedIndex(tabbedPane.indexOfTab("Logs"));
             }
         }
         catch(Exception e){
-            LOGGER.log(Level.SEVERE, "ERROR: Can't display User Records.Logs");
+            LOGGER.log(Level.SEVERE, "ERROR: Can't display User Logs");
         }
     }
 
-    private void createUserDevLogFolder(){
+    /**
+     * Creates the 'logs' directory in which to store both the User and Developer logs.
+     */
+    private void createUserDevLogFolder() {
         new File(System.getProperty("user.dir")+"/logs").mkdir();
         initialFolder = false;
     }
@@ -542,9 +534,6 @@ public class Frame extends JFrame {
                     fileContent.setLayout(new BorderLayout());
                     JTextArea textArea = new JTextArea();
 
-                    /*
-                     * Lines below again for testing
-                     */
                     if (tabbedPane.indexOfTab(previewStr) == 1) {
                         while ((sCurrentLine = br.readLine()) != null) {
                             textArea.append(sCurrentLine + "\n");
@@ -698,6 +687,10 @@ public class Frame extends JFrame {
         }
     }
 
+    /**
+     * This method creates and displays the Preferences Menu upon the press of the 'Edit Preferences'
+     * menu option.
+     */
     private void createPreferencesFrame() {
         PreferencesFrame preferencesFrame = new PreferencesFrame();
     }

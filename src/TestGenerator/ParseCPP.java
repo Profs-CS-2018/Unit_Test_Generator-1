@@ -6,13 +6,14 @@ import java.util.ArrayList;
 /**
  * The TestGenerator.ParseCPP class adds the TestGenerator.Parser functionality for parsing/searching a selected C++ class
  * for its method names; needed for generating Unit Test files.
+ *
  * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
+ * @version 2017.12.12
  */
 public class ParseCPP extends Parser {
 
     /**
      * Constructor for the TestGenerator.ParseCPP class.
-     *
      */
     public ParseCPP() {
 
