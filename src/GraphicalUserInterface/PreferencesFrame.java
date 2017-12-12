@@ -1,3 +1,7 @@
+package GraphicalUserInterface;
+
+import GraphicalUserInterface.Frame;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -5,6 +9,11 @@ import java.util.ArrayList;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+/**
+ * The Preferences Frame class incorporates a stretch goal feature that enables a user to modify certain application
+ * preferences from the File Menu.
+ * @author Aanchal Chaturvedi, Gianluca Solari, Thomas Soistmann Jr., Timothy McClintock
+ */
 public class PreferencesFrame extends JFrame {
 
     private Container container;
@@ -125,7 +134,7 @@ public class PreferencesFrame extends JFrame {
         if (makeNameInput.getText() == null) {
             JOptionPane.showMessageDialog(null, "Please enter a replacement makefile executable name.");
         } else {
-            Frame.makeExecutableName = makeNameInput.getText();
+            GraphicalUserInterface.Frame.makeExecutableName = makeNameInput.getText();
             System.out.println(makeNameInput.getText());
         }
     }
