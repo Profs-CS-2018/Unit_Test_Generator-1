@@ -34,14 +34,12 @@ public class Frame extends JFrame {
     private JPanel outputPanel;
     private JPanel filePanel;
     private JPanel previewPanel;
-    private JPanel errorPanel;
     private JPanel userPanel;
 
     //Text Areas
     private JTextField textFieldSave;
     private JTextField addFileInput;
     private JTextField textField;
-    private JTextArea failure;
 
     //Check Boxes
     private JCheckBox allFilesBox;
@@ -111,7 +109,6 @@ public class Frame extends JFrame {
      */
     private void createContent() {
         pane = getContentPane();
-
         dm = new DefaultListModel();
 
         inputFiles = new JList<DefaultListModel>();
@@ -125,8 +122,6 @@ public class Frame extends JFrame {
         textField.setEditable(true);
 
         userDirectory = "";
-
-        failure = new JTextArea();
 
         buildApplication();
     }
@@ -157,7 +152,6 @@ public class Frame extends JFrame {
 
         filePanel = new JPanel();
         previewPanel = new JPanel();
-        errorPanel = new JPanel();
         outputPanel = new JPanel();
         userPanel = new JPanel();
         JPanel sideBtnPanel = new JPanel();
@@ -188,7 +182,6 @@ public class Frame extends JFrame {
         //Border Layout Display Panels
         filePanel.setLayout(new BorderLayout(7, 7));
         previewPanel.setLayout(new BorderLayout(7, 7));
-        errorPanel.setLayout(new BorderLayout(7, 7));
         outputPanel.setLayout(new BorderLayout(7, 7));
         userPanel.setLayout(new BorderLayout(7,7));
 
@@ -223,7 +216,6 @@ public class Frame extends JFrame {
         tabbedPane.addTab("Preview", previewPanel);
         tabbedPane.addTab("Generated Files", new JScrollPane(outputPanel));
         tabbedPane.addTab("Logs", userPanel);
-        tabbedPane.addTab("Errors", errorPanel);
 
         fileInputPanel.add(addFileInput);
         fileInputPanel.add(addFile);
@@ -250,7 +242,6 @@ public class Frame extends JFrame {
         pane.add(westContainer, BorderLayout.WEST);
 
         previewPanel.setPreferredSize(new Dimension(100, 100));
-        errorPanel.setPreferredSize(new Dimension(100, 100));
         outputPanel.setPreferredSize(new Dimension(100, 100));
         userPanel.setPreferredSize(new Dimension(100,100));
         togglePanel.setPreferredSize(new Dimension(100, 100));
@@ -668,8 +659,6 @@ public class Frame extends JFrame {
         }
 
         previewPanel.removeAll();
-        errorPanel.removeAll();
-
         repaint();
         revalidate();
     }
